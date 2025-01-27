@@ -1,0 +1,213 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+if getgenv().AimbotLoaded then return else getgenv().AimbotLoaded = true end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = math.random(1000000, 9999999)
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+if syn and syn.protect_gui then
+    syn.protect_gui(ScreenGui)
+    ScreenGui.Parent = game.CoreGui
+else
+    ScreenGui.Parent = game:GetService("CoreGui")
+end
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 180, 0, 110)
+MainFrame.Position = UDim2.new(0.5, -90, 0.5, -55)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 40))
+})
+UIGradient.Rotation = 45
+UIGradient.Parent = MainFrame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+local HoloFrame = Instance.new("ImageLabel")
+HoloFrame.BackgroundTransparency = 1
+HoloFrame.Image = "rbxassetid://4595286933"
+HoloFrame.ImageColor3 = Color3.fromRGB(0, 255, 255)
+HoloFrame.ImageTransparency = 0.85
+HoloFrame.Size = UDim2.new(1, 0, 1, 0)
+HoloFrame.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0, 25)
+Title.Position = UDim2.new(0, 0, 0, 5)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.Arcade
+Title.Text = "ايم بوت (V1)"
+Title.TextColor3 = Color3.fromRGB(0, 255, 255)
+Title.TextSize = 22
+Title.Parent = MainFrame
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Size = UDim2.new(0.85, 0, 0, 40)
+ToggleButton.Position = UDim2.new(0.075, 0, 0.5, -15)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 14
+ToggleButton.Text = "تشغيل"
+ToggleButton.Parent = MainFrame
+
+local ButtonUICorner = Instance.new("UICorner")
+ButtonUICorner.CornerRadius = UDim.new(0, 6)
+ButtonUICorner.Parent = ToggleButton
+
+local function getPredictedPosition(target)
+    local targetHRP = target:FindFirstChild("HumanoidRootPart")
+    local targetHum = target:FindFirstChild("Humanoid")
+    if targetHRP and targetHum then
+        local velocity = targetHRP.Velocity
+        local position = targetHRP.Position
+        local prediction = 0.05
+        local predictedPosition = position + (velocity * prediction)
+        local gravity = Vector3.new(0, -196.2, 0)
+        predictedPosition = predictedPosition + (0.5 * gravity * prediction * prediction)
+        if targetHum.Jump then
+            predictedPosition = predictedPosition + Vector3.new(0, 4, 0)
+        end
+        local microAdjust = Vector3.new(
+            math.sin(tick() * 0.1) * 0.1,
+            math.cos(tick() * 0.1) * 0.1,
+            math.sin(tick() * 0.1) * 0.1
+        )
+        predictedPosition = predictedPosition + microAdjust
+        return predictedPosition
+    end
+    return nil
+end
+
+local function getTargetPriority(obj, distance)
+    local priority = 0
+    if obj:FindFirstChild("Humanoid") then
+        priority = priority + (100 / math.max(1, obj.Humanoid.Health))
+    end
+    priority = priority + (1000 / math.max(1, distance))
+    if obj:FindFirstChild("Head") then
+        priority = priority + 50
+    end
+    return priority
+end
+
+local function getOptimalTarget()
+    local localPlayer = Players.LocalPlayer
+    if not localPlayer.Character then return nil end
+    local highestPriority = -math.huge
+    local bestTarget = nil
+    local localRoot = localPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not localRoot then return nil end
+    local function processTarget(obj)
+        if obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") and 
+           obj.Humanoid.Health > 0 and obj ~= localPlayer.Character then
+            local distance = (obj.HumanoidRootPart.Position - localRoot.Position).Magnitude
+            local priority = getTargetPriority(obj, distance)
+            if priority > highestPriority then
+                highestPriority = priority
+                bestTarget = obj
+            end
+        end
+    end
+    for _, player in pairs(Players:GetPlayers()) do
+        if player.Character then
+            processTarget(player.Character)
+        end
+    end
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and obj:FindFirstChild("Humanoid") then
+            processTarget(obj)
+        end
+    end
+    return bestTarget
+end
+
+local isAimbotEnabled = false
+local smoothness = 0.2
+
+RunService.RenderStepped:Connect(function()
+    if isAimbotEnabled and Players.LocalPlayer.Character then
+        local target = getOptimalTarget()
+        if target then
+            local predictedPos = getPredictedPosition(target)
+            if predictedPos then
+                local camera = workspace.CurrentCamera
+                local targetCFrame = CFrame.new(camera.CFrame.Position, predictedPos)
+                camera.CFrame = camera.CFrame:Lerp(targetCFrame, 1 - smoothness)
+            end
+        end
+    end
+end)
+
+ToggleButton.MouseButton1Click:Connect(function()
+    isAimbotEnabled = not isAimbotEnabled
+    if isAimbotEnabled then
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+        ToggleButton.Text = "اطفاء"
+        TweenService:Create(HoloFrame, TweenInfo.new(0.3), {ImageTransparency = 0.7}):Play()
+    else
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+        ToggleButton.Text = "شتغيل"
+        TweenService:Create(HoloFrame, TweenInfo.new(0.3), {ImageTransparency = 0.85}):Play()
+    end
+end)
+
+local function enableDragging()
+    local dragToggle, dragStart, startPos = nil, nil, nil
+    local function updateInput(input)
+        local delta = input.Position - dragStart
+        local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        TweenService:Create(MainFrame, TweenInfo.new(0.1), {Position = position}):Play()
+    end
+    MainFrame.InputBegan:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseButton1 or 
+            input.UserInputType == Enum.UserInputType.Touch) then
+            dragToggle = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragToggle = false
+                end
+            end)
+        end
+    end)
+    MainFrame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or
+           input.UserInputType == Enum.UserInputType.Touch then
+            if dragToggle then
+                updateInput(input)
+            end
+        end
+    end)
+end
+
+enableDragging()
+
+spawn(function()
+    while wait() do
+        for i = 0, 1, 0.001 do
+            if not ScreenGui.Parent then return end
+            Title.TextColor3 = Color3.fromHSV(i, 1, 1)
+            wait(0.01)
+        end
+    end
+end)
