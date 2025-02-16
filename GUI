@@ -1,12 +1,24 @@
-local Configs_HUB = {
-  Cor_Hub = Color3.fromRGB(0, 0, 0),
-  Cor_Options = Color3.fromRGB(0, 0, 0),
-  Cor_Stroke = Color3.fromRGB(0, 255, 0),
-  Cor_Text = Color3.fromRGB(240, 240, 240),
-  Cor_DarkText = Color3.fromRGB(240, 240, 240),
-  Corner_Radius = UDim.new(0,4),
-  Text_Font = Enum.Font.FredokaOne
+local local Configs_HUB = {
+    Cor_Hub = Color3.fromRGB(0, 0, 0),
+    Cor_Options = Color3.fromRGB(0, 0, 0),
+    Cor_Stroke = Color3.fromRGB(0, 255, 0),
+    Cor_Text = Color3.fromRGB(240, 240, 240),
+    Cor_DarkText = Color3.fromRGB(240, 240, 240),
+    Corner_Radius = UDim.new(0, 4),
+    Text_Font = Enum.Font.FredokaOne
 }
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Background = Instance.new("ImageLabel")
+Background.Parent = ScreenGui
+Background.Size = UDim2.new(1, 0, 1, 0)
+Background.Position = UDim2.new(0, 0, 0, 0)
+Background.Image = "rbxassetid://18393252027"
+Background.ScaleType = Enum.ScaleType.Crop
+Background.BackgroundTransparency = 1
+Background.ZIndex = 0
 
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
