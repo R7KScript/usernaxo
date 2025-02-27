@@ -1,12 +1,12 @@
 local Configs_HUB = {
-  Cor_Hub = Color3.fromRGB(0, 0, 0),
+  Cor_Hub = Color3.fromRGB(0, 0, 0),  -- يمكن إزالته أو تركه كخيار احتياطي
   Cor_Options = Color3.fromRGB(0, 0, 0),
   Cor_Stroke = Color3.fromRGB(138, 43, 226),
   Cor_Text = Color3.fromRGB(240, 240, 240),
   Cor_DarkText = Color3.fromRGB(240, 240, 240),
   Corner_Radius = UDim.new(0,4),
   Text_Font = Enum.Font.FredokaOne,
-  Background_Image = "rbxassetid://120440277302800"
+  Background_Image = "rbxassetid://120440277302800"  -- رابط الصورة
 }
 
 local CoreGui = game:GetService("CoreGui")
