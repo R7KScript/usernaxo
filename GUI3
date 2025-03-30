@@ -700,7 +700,7 @@ function MakeWindow(Configs)
 
 
   local ImageLabel = Create("ImageLabel", TextButton, {
-    Image = "rbxassetid://77642258001193", -- رابط الصورة الجديد
+    Image = "rbxassetid://92491735511394", -- رابط الصورة الجديد
     Size = UDim2.new(0, 20, 0, 20),
     Position = UDim2.new(0, 5, 0, 2.5),
     BackgroundTransparency = 1,
