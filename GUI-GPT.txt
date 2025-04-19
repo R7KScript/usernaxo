@@ -1,0 +1,1628 @@
+--[[
+    REDz HUB Library - Enhanced Version
+    تم التطوير بواسطة: REDz9999
+    النسخة المحسنة بواسطة: [Your Name]
+    واجهة مستخدم متقدمة مع تأثيرات بصرية وأداء محسن
+--]]
+
+local Configs_HUB = {
+    Cor_Hub = Color3.fromRGB(25, 25, 35), -- لون الخلفية الرئيسي
+    Cor_Options = Color3.fromRGB(40, 40, 50), -- لون العناصر
+    Cor_Stroke = Color3.fromRGB(0, 150, 255), -- لون الحدود
+    Cor_Text = Color3.fromRGB(240, 240, 240), -- لون النص الأساسي
+    Cor_DarkText = Color3.fromRGB(180, 180, 180), -- لون النص الثانوي
+    Corner_Radius = UDim.new(0, 6), -- نصف قطر الزوايا
+    Text_Font = Enum.Font.GothamSemibold, -- الخط العام
+    Text_Size = 14, -- حجم النص الأساسي
+    Animation_Speed = 0.25 -- سرعة التحريك
+}
+
+-- الخدمات الأساسية
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- نظام إنشاء العناصر مع تحسينات الأداء
+local function Create(instance, parent, props)
+    local new = Instance.new(instance)
+    new.Parent = parent
+    
+    if props then
+        for prop, value in pairs(props) do
+            new[prop] = value
+        end
+    end
+    
+    return new
+end
+
+-- نظام تحديث الخصائص مع التحقق من الصحة
+local function SetProps(instance, props)
+    if instance and props then
+        for prop, value in pairs(props) do
+            if instance[prop] ~= nil then
+                instance[prop] = value
+            end
+        end
+    end
+    return instance
+end
+
+-- نظام الزوايا المحسّن
+local function Corner(parent, props)
+    local new = Create("UICorner", parent)
+    new.CornerRadius = Configs_HUB.Corner_Radius
+    
+    if props then
+        SetProps(new, props)
+    end
+    
+    return new
+end
+
+-- نظام الحدود المحسّن
+local function Stroke(parent, props)
+    local new = Create("UIStroke", parent)
+    new.Color = Configs_HUB.Cor_Stroke
+    new.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    new.Thickness = 2
+    
+    if props then
+        SetProps(new, props)
+    end
+    
+    return new
+end
+
+-- نظام التحريك المتقدم
+local function CreateTween(instance, prop, value, time, tweenWait)
+    local tweenInfo = TweenInfo.new(
+        time or Configs_HUB.Animation_Speed,
+        Enum.EasingStyle.Quint,
+        Enum.EasingDirection.Out
+    )
+    
+    local tween = TweenService:Create(instance, tweenInfo, {[prop] = value})
+    tween:Play()
+    
+    if tweenWait then
+        tween.Completed:Wait()
+    end
+    
+    return tween
+end
+
+-- نظام تغيير لون النص عند التفاعل
+local function TextSetColor(instance)
+    instance.MouseEnter:Connect(function()
+        CreateTween(instance, "TextColor3", Color3.fromRGB(0, 180, 255))
+    end)
+    
+    instance.MouseLeave:Connect(function()
+        CreateTween(instance, "TextColor3", Configs_HUB.Cor_Text)
+    end)
+end
+
+-- إنشاء الواجهة الرئيسية مع تحسينات الأمان
+local ScreenGui = Create("ScreenGui", CoreGui, {
+    Name = "REDz_HUB_Enhanced",
+    ResetOnSpawn = false,
+    ZIndexBehavior = Enum.ZIndexBehavior.Global
+})
+
+-- تنظيف أي نسخ مكررة
+local existingGui = CoreGui:FindFirstChild(ScreenGui.Name)
+if existingGui and existingGui ~= ScreenGui then
+    existingGui:Destroy()
+end
+
+-- نظام الإخطارات المحسّن
+local NotificationSystem = {
+    Container = Create("Frame", ScreenGui, {
+        Size = UDim2.new(0, 300, 1, 0),
+        Position = UDim2.new(1, 0, 0, 0),
+        AnchorPoint = Vector2.new(1, 0),
+        BackgroundTransparency = 1,
+        Name = "Notifications"
+    }),
+    
+    Padding = Create("UIPadding", nil, {
+        PaddingLeft = UDim.new(0, 25),
+        PaddingTop = UDim.new(0, 25),
+        PaddingBottom = UDim.new(0, 50)
+    }),
+    
+    Layout = Create("UIListLayout", nil, {
+        Padding = UDim.new(0, 15),
+        VerticalAlignment = Enum.VerticalAlignment.Bottom
+    })
+}
+
+NotificationSystem.Padding.Parent = NotificationSystem.Container
+NotificationSystem.Layout.Parent = NotificationSystem.Container
+
+-- وظيفة إنشاء إخطار متطور
+function NotificationSystem:Create(Configs)
+    local Title = Configs.Title or "REDz HUB"
+    local Text = Configs.Text or "Notification"
+    local Duration = Configs.Time or 5
+    local Icon = Configs.Icon or "rbxassetid://3926305904" -- أيقونة افتراضية
+    
+    -- الإطار الرئيسي للإخطار
+    local NotificationFrame = Create("Frame", self.Container, {
+        Size = UDim2.new(2, 0, 0, 0),
+        BackgroundTransparency = 1,
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Name = "Notification_"..tostring(os.time())
+    })
+    
+    -- محتوى الإخطار
+    local ContentFrame = Create("Frame", NotificationFrame, {
+        Size = UDim2.new(0, self.Container.Size.X.Offset - 50, 0, 0),
+        BackgroundColor3 = Configs_HUB.Cor_Hub,
+        Position = UDim2.new(0, self.Container.Size.X.Offset, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y
+    })
+    
+    Corner(ContentFrame)
+    Stroke(ContentFrame)
+    
+    -- رأس الإخطار
+    local Header = Create("Frame", ContentFrame, {
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundTransparency = 1
+    })
+    
+    -- أيقونة الإخطار
+    local IconImage = Create("ImageLabel", Header, {
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(0, 10, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Image = Icon,
+        BackgroundTransparency = 1
+    })
+    
+    -- عنوان الإخطار
+    local TitleLabel = Create("TextLabel", Header, {
+        Size = UDim2.new(1, -40, 1, 0),
+        Position = UDim2.new(0, 40, 0, 0),
+        Font = Configs_HUB.Text_Font,
+        BackgroundTransparency = 1,
+        Text = Title,
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextColor3 = Configs_HUB.Cor_Text
+    })
+    
+    -- زر الإغلاق
+    local CloseButton = Create("TextButton", Header, {
+        Text = "×",
+        Font = Enum.Font.GothamBold,
+        TextSize = 20,
+        BackgroundTransparency = 1,
+        TextColor3 = Color3.fromRGB(200, 200, 200),
+        Position = UDim2.new(1, -5, 0.5, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        Size = UDim2.new(0, 25, 0, 25)
+    })
+    
+    -- نص الإخطار
+    local TextLabel = Create("TextLabel", ContentFrame, {
+        Size = UDim2.new(1, -30, 0, 0),
+        Position = UDim2.new(0, 20, 0, Header.Size.Y.Offset + 10),
+        TextSize = 14,
+        TextColor3 = Configs_HUB.Cor_DarkText,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Text = Text,
+        Font = Configs_HUB.Text_Font,
+        BackgroundTransparency = 1,
+        TextWrapped = true
+    })
+    
+    -- شريط التقدم الزمني
+    local ProgressBar = Create("Frame", ContentFrame, {
+        Size = UDim2.new(1, 0, 0, 2),
+        BackgroundColor3 = Configs_HUB.Cor_Stroke,
+        Position = UDim2.new(0, 0, 0, Header.Size.Y.Offset),
+        BorderSizePixel = 0
+    })
+    
+    Corner(ProgressBar)
+    
+    -- تأثيرات التحريك
+    local function ShowNotification()
+        CreateTween(ContentFrame, "Position", UDim2.new(0, -20, 0, 0), 0.3)
+        CreateTween(ContentFrame, "Position", UDim2.new(0, 0, 0, 0), 0.2)
+        
+        -- تحريك شريط التقدم
+        CreateTween(ProgressBar, "Size", UDim2.new(0, 0, 0, 2), Duration, true)
+    end
+    
+    local function HideNotification()
+        CreateTween(ContentFrame, "Position", UDim2.new(0, -20, 0, 0), 0.1)
+        CreateTween(ContentFrame, "Position", UDim2.new(0, self.Container.Size.X.Offset, 0, 0), 0.3)
+        task.wait(0.3)
+        NotificationFrame:Destroy()
+    end
+    
+    -- تفاعل زر الإغلاق
+    CloseButton.MouseButton1Click:Connect(HideNotification)
+    
+    -- التشغيل التلقائي للإخطار
+    task.spawn(function()
+        ShowNotification()
+        task.wait(Duration)
+        if ContentFrame and ContentFrame.Parent then
+            HideNotification()
+        end
+    end)
+end
+
+-- نظام النوافذ المحسّن
+local WindowSystem = {
+    ActiveWindows = {},
+    ZIndex = 10
+}
+
+function WindowSystem:Create(Configs)
+    local WindowConfig = {
+        Title = Configs.Title or "REDz HUB",
+        Size = Configs.Size or UDim2.new(0, 500, 0, 400),
+        Position = Configs.Position or UDim2.new(0.5, 0, 0.5, 0),
+        MinSize = Configs.MinSize or UDim2.new(0, 300, 0, 200),
+        Resizable = Configs.Resizable or true,
+        Closable = Configs.Closable or true,
+        Minimizable = Configs.Minimizable or true
+    }
+    
+    -- النافذة الرئيسية
+    local Window = Create("Frame", ScreenGui, {
+        Size = WindowConfig.Size,
+        Position = WindowConfig.Position,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Configs_HUB.Cor_Hub,
+        Active = true,
+        Draggable = true,
+        ZIndex = self.ZIndex
+    })
+    
+    self.ZIndex = self.ZIndex + 1
+    Corner(Window)
+    Stroke(Window)
+    
+    -- شريط العنوان
+    local TitleBar = Create("Frame", Window, {
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundColor3 = Configs_HUB.Cor_Options,
+        ZIndex = self.ZIndex
+    })
+    
+    self.ZIndex = self.ZIndex + 1
+    Corner(TitleBar, {CornerRadius = UDim.new(0, 6)})
+    
+    -- عنوان النافذة
+    local TitleLabel = Create("TextLabel", TitleBar, {
+        Size = UDim2.new(1, -80, 1, 0),
+        Position = UDim2.new(0, 10, 0, 0),
+        Text = WindowConfig.Title,
+        Font = Configs_HUB.Text_Font,
+        TextSize = 16,
+        TextColor3 = Configs_HUB.Cor_Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        ZIndex = self.ZIndex
+    })
+    
+    self.ZIndex = self.ZIndex + 1
+    
+    -- أزرار التحكم
+    local ControlButtons = Create("Frame", TitleBar, {
+        Size = UDim2.new(0, 70, 1, 0),
+        Position = UDim2.new(1, -5, 0, 0),
+        AnchorPoint = Vector2.new(1, 0),
+        BackgroundTransparency = 1,
+        ZIndex = self.ZIndex
+    })
+    
+    self.ZIndex = self.ZIndex + 1
+    
+    -- زر التصغير
+    local MinimizeButton = Create("TextButton", ControlButtons, {
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(0, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Text = "_",
+        Font = Enum.Font.GothamBold,
+        TextSize = 18,
+        TextColor3 = Configs_HUB.Cor_Text,
+        BackgroundTransparency = 1,
+        ZIndex = self.ZIndex
+    })
+    
+    self.ZIndex = self.ZIndex + 1
+    
+    -- زر التكبير
+    local MaximizeButton = Create("TextButton", ControlButtons, {
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(0, 25, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Text = "□",
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        TextColor3 = Configs_HUB.Cor_Text,
+        BackgroundTransparency = 1,
+        ZIndex = self.ZIndex
+    })
+    
+    self.ZIndex = self.ZIndex + 1
+    
+    -- زر الإغلاق
+    local CloseButton = Create("TextButton", ControlButtons, {
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(0, 50, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Text = "×",
+        Font = Enum.Font.GothamBold,
+        TextSize = 18,
+        TextColor3 = Color3.fromRGB(255, 80, 80),
+        BackgroundTransparency = 1,
+        ZIndex = self.ZIndex
+    })
+    
+    self.ZIndex = self.ZIndex + 1
+    
+    -- منطقة المحتوى
+    local ContentArea = Create("Frame", Window, {
+        Size = UDim2.new(1, -10, 1, -40),
+        Position = UDim2.new(0.5, 0, 1, -5),
+        AnchorPoint = Vector2.new(0.5, 1),
+        BackgroundColor3 = Configs_HUB.Cor_Options,
+        ZIndex = self.ZIndex - 5
+    })
+    
+    Corner(ContentArea)
+    Stroke(ContentArea)
+    
+    -- شريط التمرير
+    local ScrollFrame = Create("ScrollingFrame", ContentArea, {
+        Size = UDim2.new(1, -10, 1, -10),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
+        ScrollBarThickness = 5,
+        ScrollBarImageColor3 = Configs_HUB.Cor_Stroke,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y
+    })
+    
+    local ContentLayout = Create("UIListLayout", ScrollFrame, {
+        Padding = UDim.new(0, 5)
+    })
+    
+    -- تفاعلات النافذة
+    local isMinimized = false
+    local isMaximized = false
+    local originalSize = Window.Size
+    local originalPosition = Window.Position
+    
+    -- وظيفة التصغير/الاستعادة
+    MinimizeButton.MouseButton1Click:Connect(function()
+        if isMinimized then
+            -- استعادة النافذة
+            Window.Size = originalSize
+            ContentArea.Visible = true
+            isMinimized = false
+            MinimizeButton.Text = "_"
+        else
+            -- تصغير النافذة
+            originalSize = Window.Size
+            Window.Size = UDim2.new(Window.Size.X, Window.Size.Y, 0, TitleBar.Size.Y.Offset + 5)
+            ContentArea.Visible = false
+            isMinimized = true
+            MinimizeButton.Text = "+"
+        end
+    end)
+    
+    -- وظيفة التكبير/الاستعادة
+    MaximizeButton.MouseButton1Click:Connect(function()
+        if isMaximized then
+            -- استعادة الحجم الأصلي
+            Window.Size = originalSize
+            Window.Position = originalPosition
+            isMaximized = false
+            MaximizeButton.Text = "□"
+        else
+            -- تكبير النافذة
+            originalSize = Window.Size
+            originalPosition = Window.Position
+            Window.Size = UDim2.new(0.9, 0, 0.9, 0)
+            Window.Position = UDim2.new(0.5, 0, 0.5, 0)
+            isMaximized = true
+            MaximizeButton.Text = "❐"
+        end
+    end)
+    
+    -- وظيفة إغلاق النافذة
+    CloseButton.MouseButton1Click:Connect(function()
+        -- تأثير اختفاء النافذة
+        CreateTween(Window, "Size", UDim2.new(0, 0, 0, 0), 0.3)
+        task.wait(0.3)
+        Window:Destroy()
+    end)
+    
+    -- نظام السحب للنافذة
+    local dragging
+    local dragInput
+    local dragStart
+    local startPos
+    
+    TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = Window.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    TitleBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            Window.Position = UDim2.new(
+                startPos.X.Scale, 
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale, 
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
+    -- إضافة النافذة إلى القائمة النشطة
+    table.insert(self.ActiveWindows, Window)
+    
+    -- إرجاع واجهة للتحكم بالنافذة
+    return {
+        Window = Window,
+        TitleBar = TitleBar,
+        ContentArea = ScrollFrame,
+        
+        SetTitle = function(self, newTitle)
+            TitleLabel.Text = newTitle
+        end,
+        
+        Close = function(self)
+            Window:Destroy()
+        end,
+        
+        Minimize = function(self)
+            MinimizeButton:Activate()
+        end,
+        
+        Maximize = function(self)
+            MaximizeButton:Activate()
+        end
+    }
+end
+
+-- نظام الألسنة (Tabs) المحسّن
+function WindowSystem:CreateTabSystem(parent)
+    local TabSystem = {
+        Tabs = {},
+        ActiveTab = nil
+    }
+    
+    -- شريط الألسنة
+    local TabBar = Create("Frame", parent, {
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundTransparency = 1
+    })
+    
+    local TabListLayout = Create("UIListLayout", TabBar, {
+        FillDirection = Enum.FillDirection.Horizontal,
+        Padding = UDim.new(0, 5)
+    })
+    
+    -- منطقة المحتوى
+    local ContentFrame = Create("Frame", parent, {
+        Size = UDim2.new(1, 0, 1, -35),
+        Position = UDim2.new(0, 0, 0, 35),
+        BackgroundTransparency = 1
+    })
+    
+    -- وظيفة إنشاء لسان جديد
+    function TabSystem:AddTab(tabName)
+        local Tab = {
+            Name = tabName,
+            Content = Create("ScrollingFrame", ContentFrame, {
+                Size = UDim2.new(1, 0, 1, 0),
+                BackgroundTransparency = 1,
+                ScrollBarThickness = 5,
+                ScrollBarImageColor3 = Configs_HUB.Cor_Stroke,
+                Visible = false,
+                CanvasSize = UDim2.new(0, 0, 0, 0),
+                AutomaticCanvasSize = Enum.AutomaticSize.Y
+            })
+        }
+        
+        -- زر اللسان
+        local TabButton = Create("TextButton", TabBar, {
+            Size = UDim2.new(0, 100, 1, 0),
+            Text = tabName,
+            Font = Configs_HUB.Text_Font,
+            TextSize = 14,
+            TextColor3 = Configs_HUB.Cor_DarkText,
+            BackgroundColor3 = Configs_HUB.Cor_Options,
+            AutoButtonColor = false
+        })
+        
+        Corner(TabButton)
+        Stroke(TabButton)
+        
+        -- تفعيل اللسان عند النقر
+        TabButton.MouseButton1Click:Connect(function()
+            self:SetActiveTab(tabName)
+        end)
+        
+        -- إعداد المحتوى
+        local ContentLayout = Create("UIListLayout", Tab.Content, {
+            Padding = UDim.new(0, 10)
+        })
+        
+        local ContentPadding = Create("UIPadding", Tab.Content, {
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10),
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10)
+        })
+        
+        -- إضافة اللسان إلى النظام
+        table.insert(self.Tabs, Tab)
+        
+        -- إذا كان هذا أول لسان، فعّله تلقائياً
+        if #self.Tabs == 1 then
+            self:SetActiveTab(tabName)
+        end
+        
+        return Tab.Content
+    end
+    
+    -- وظيفة تعيين اللسان النشط
+    function TabSystem:SetActiveTab(tabName)
+        for _, tab in ipairs(self.Tabs) do
+            if tab.Name == tabName then
+                tab.Content.Visible = true
+                self.ActiveTab = tab
+            else
+                tab.Content.Visible = false
+            end
+        end
+    end
+    
+    return TabSystem
+end
+
+-- نظام العناصر المحسّن
+local ElementSystem = {}
+
+-- زر محسّن مع أيقونة
+function ElementSystem:CreateButton(parent, config)
+    local Button = Create("TextButton", parent, {
+        Size = config.Size or UDim2.new(1, 0, 0, 30),
+        Text = "",
+        AutoButtonColor = false,
+        BackgroundColor3 = Configs_HUB.Cor_Options
+    })
+    
+    Corner(Button)
+    Stroke(Button)
+    
+    -- أيقونة الزر
+    if config.Icon then
+        local Icon = Create("ImageLabel", Button, {
+            Size = UDim2.new(0, 20, 0, 20),
+            Position = UDim2.new(0, 5, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            Image = config.Icon,
+            BackgroundTransparency = 1,
+            ImageColor3 = Configs_HUB.Cor_Stroke
+        })
+    end
+    
+    -- نص الزر
+    local Label = Create("TextLabel", Button, {
+        Size = UDim2.new(1, -30, 1, 0),
+        Position = UDim2.new(0, 30, 0, 0),
+        Text = config.Text or "Button",
+        Font = Configs_HUB.Text_Font,
+        TextSize = Configs_HUB.Text_Size,
+        TextColor3 = Configs_HUB.Cor_Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1
+    })
+    
+    -- تأثيرات التفاعل
+    Button.MouseEnter:Connect(function()
+        CreateTween(Button, "BackgroundColor3", Color3.fromRGB(
+            Configs_HUB.Cor_Options.R * 255 + 10,
+            Configs_HUB.Cor_Options.G * 255 + 10,
+            Configs_HUB.Cor_Options.B * 255 + 10
+        ))
+    end)
+    
+    Button.MouseLeave:Connect(function()
+        CreateTween(Button, "BackgroundColor3", Configs_HUB.Cor_Options)
+    end)
+    
+    Button.MouseButton1Down:Connect(function()
+        CreateTween(Button, "Position", Button.Position + UDim2.new(0, 0, 0, 2), 0.1)
+    end)
+    
+    Button.MouseButton1Up:Connect(function()
+        CreateTween(Button, "Position", Button.Position - UDim2.new(0, 0, 0, 2), 0.1)
+        if config.Callback then
+            config.Callback()
+        end
+    end)
+    
+    return Button
+end
+
+-- مفتاح تبديل محسّن
+function ElementSystem:CreateToggle(parent, config)
+    local Toggle = Create("TextButton", parent, {
+        Size = config.Size or UDim2.new(1, 0, 0, 30),
+        Text = "",
+        AutoButtonColor = false,
+        BackgroundColor3 = Configs_HUB.Cor_Options
+    })
+    
+    Corner(Toggle)
+    Stroke(Toggle)
+    
+    -- نص المفتاح
+    local Label = Create("TextLabel", Toggle, {
+        Size = UDim2.new(1, -60, 1, 0),
+        Position = UDim2.new(0, 10, 0, 0),
+        Text = config.Text or "Toggle",
+        Font = Configs_HUB.Text_Font,
+        TextSize = Configs_HUB.Text_Size,
+        TextColor3 = Configs_HUB.Cor_Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1
+    })
+    
+    -- عنصر التبديل
+    local ToggleFrame = Create("Frame", Toggle, {
+        Size = UDim2.new(0, 40, 0, 20),
+        Position = UDim2.new(1, -15, 0.5, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundColor3 = Configs_HUB.Cor_Hub
+    })
+    
+    Corner(ToggleFrame, {CornerRadius = UDim.new(1, 0)})
+    Stroke(ToggleFrame)
+    
+    local ToggleCircle = Create("Frame", ToggleFrame, {
+        Size = UDim2.new(0, 16, 0, 16),
+        Position = UDim2.new(0, 2, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        BackgroundColor3 = Configs_HUB.Cor_Stroke
+    })
+    
+    Corner(ToggleCircle, {CornerRadius = UDim.new(1, 0)})
+    
+    -- حالة المفتاح
+    local isToggled = config.Default or false
+    
+    -- تحديث المظهر حسب الحالة
+    local function UpdateToggle()
+        if isToggled then
+            CreateTween(ToggleCircle, "Position", UDim2.new(1, -18, 0.5, 0))
+            CreateTween(ToggleCircle, "BackgroundColor3", Color3.fromRGB(0, 200, 0))
+            CreateTween(ToggleFrame, "BackgroundColor3", Color3.fromRGB(0, 80, 0))
+        else
+            CreateTween(ToggleCircle, "Position", UDim2.new(0, 2, 0.5, 0))
+            CreateTween(ToggleCircle, "BackgroundColor3", Configs_HUB.Cor_Stroke)
+            CreateTween(ToggleFrame, "BackgroundColor3", Configs_HUB.Cor_Hub)
+        end
+    end
+    
+    -- تفعيل/إلغاء عند النقر
+    Toggle.MouseButton1Click:Connect(function()
+        isToggled = not isToggled
+        UpdateToggle()
+        if config.Callback then
+            config.Callback(isToggled)
+        end
+    end)
+    
+    -- التهيئة الأولية
+    UpdateToggle()
+    
+    return {
+        Toggle = Toggle,
+        SetState = function(self, state)
+            isToggled = state
+            UpdateToggle()
+        end,
+        GetState = function(self)
+            return isToggled
+        end
+    }
+end
+
+-- شريط التمرير المحسّن
+function ElementSystem:CreateSlider(parent, config)
+    local Slider = Create("Frame", parent, {
+        Size = config.Size or UDim2.new(1, 0, 0, 50),
+        BackgroundTransparency = 1
+    })
+    
+    -- عنوان الشريط
+    local Title = Create("TextLabel", Slider, {
+        Size = UDim2.new(1, 0, 0, 20),
+        Text = config.Text or "Slider",
+        Font = Configs_HUB.Text_Font,
+        TextSize = Configs_HUB.Text_Size,
+        TextColor3 = Configs_HUB.Cor_Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1
+    })
+    
+    -- قيمة الشريط
+    local ValueLabel = Create("TextLabel", Slider, {
+        Size = UDim2.new(0, 50, 0, 20),
+        Position = UDim2.new(1, 0, 0, 0),
+        AnchorPoint = Vector2.new(1, 0),
+        Text = tostring(config.Default or config.Min or 0),
+        Font = Configs_HUB.Text_Font,
+        TextSize = Configs_HUB.Text_Size,
+        TextColor3 = Configs_HUB.Cor_Text,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        BackgroundTransparency = 1
+    })
+    
+    -- مسار الشريط
+    local Track = Create("Frame", Slider, {
+        Size = UDim2.new(1, 0, 0, 5),
+        Position = UDim2.new(0, 0, 1, -10),
+        AnchorPoint = Vector2.new(0, 1),
+        BackgroundColor3 = Configs_HUB.Cor_Hub
+    })
+    
+    Corner(Track)
+    Stroke(Track)
+    
+    -- شريط التعبئة
+    local Fill = Create("Frame", Track, {
+        Size = UDim2.new(0, 0, 1, 0),
+        BackgroundColor3 = Configs_HUB.Cor_Stroke
+    })
+    
+    Corner(Fill)
+    
+    -- مقبض الشريط
+    local Thumb = Create("Frame", Track, {
+        Size = UDim2.new(0, 10, 0, 10),
+        Position = UDim2.new(0, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        BackgroundColor3 = Configs_HUB.Cor_Text
+    })
+    
+    Corner(Thumb, {CornerRadius = UDim.new(1, 0)})
+    Stroke(Thumb)
+    
+    -- قيم الشريط
+    local min = config.Min or 0
+    local max = config.Max or 100
+    local step = config.Step or 1
+    local currentValue = config.Default or min
+    
+    -- تحديث الشريط حسب القيمة
+    local function UpdateSlider(value)
+        currentValue = math.clamp(value, min, max)
+        local percentage = (currentValue - min) / (max - min)
+        
+        Fill.Size = UDim2.new(percentage, 0, 1, 0)
+        Thumb.Position = UDim2.new(percentage, 0, 0.5, 0)
+        ValueLabel.Text = tostring(currentValue)
+        
+        if config.Callback then
+            config.Callback(currentValue)
+        end
+    end
+    
+    -- تفاعلات السحب
+    local isDragging = false
+    
+    local function UpdateFromMouseInput()
+        local mouseX = UserInputService:GetMouseLocation().X
+        local absolutePosition = Track.AbsolutePosition.X
+        local absoluteSize = Track.AbsoluteSize.X
+        
+        local relativeX = math.clamp(mouseX - absolutePosition, 0, absoluteSize)
+        local percentage = relativeX / absoluteSize
+        local newValue = min + (max - min) * percentage
+        
+        -- تطبيق الخطوة
+        if step > 0 then
+            newValue = math.floor(newValue / step + 0.5) * step
+            percentage = (newValue - min) / (max - min)
+        end
+        
+        UpdateSlider(newValue)
+    end
+    
+    Thumb.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = true
+        end
+    end)
+    
+    Thumb.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false
+        end
+    end)
+    
+    Track.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = true
+            UpdateFromMouseInput()
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            UpdateFromMouseInput()
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false
+        end
+    end)
+    
+    -- التهيئة الأولية
+    UpdateSlider(currentValue)
+    
+    return {
+        Slider = Slider,
+        SetValue = function(self, value)
+            UpdateSlider(value)
+        end,
+        GetValue = function(self)
+            return currentValue
+        end
+    }
+end
+
+-- مربع النص المحسّن
+function ElementSystem:CreateTextBox(parent, config)
+    local TextBox = Create("Frame", parent, {
+        Size = config.Size or UDim2.new(1, 0, 0, 40),
+        BackgroundTransparency = 1
+    })
+    
+    -- عنوان مربع النص
+    if config.Text then
+        local Title = Create("TextLabel", TextBox, {
+            Size = UDim2.new(1, 0, 0, 20),
+            Text = config.Text,
+            Font = Configs_HUB.Text_Font,
+            TextSize = Configs_HUB.Text_Size,
+            TextColor3 = Configs_HUB.Cor_Text,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            BackgroundTransparency = 1
+        })
+    end
+    local SliderBar2 = Create("Frame", SliderBar1, {
+      BackgroundColor3 = Color3.fromRGB(30, 140, 200),
+      Size = UDim2.new(0, Slider.Position.X.Offset, 1, 0)
+    })Corner(SliderBar2)
+    
+    local function UpdCounter(Value)
+      local String = tostring(Value * Increase)
+      if string.find(String, ".") then
+        String = String:sub(1, 5)
+      end
+      TextLabelNumber.Text = String
+      Callback(Value * Increase)
+    end
+    
+    local MouseEnterOrLeave = false
+    Frame.MouseButton1Down:Connect(function()
+      MouseEnterOrLeave = true
+      while MouseEnterOrLeave do task.wait()
+        local MousePos = UserInputService:GetMouseLocation().X - SavePos.AbsolutePosition.X
+        Slider.Position = UDim2.new(0, MousePos, 0.5, 0)
+      end
+    end)
+    Frame.MouseLeave:Connect(function()
+      MouseEnterOrLeave = false
+    end)
+    
+    local function SliderSet(NewValue)
+      local max, min = MaxValue * Increase, MinValue * Increase
+      local SliderPos = (NewValue - min) / (max - min)
+      local X_Offset = SliderPos * 100
+      local SliderPosition = UDim2.new(0, X_Offset + 1, 0, 0)
+      CreateTween(Slider, "Position", SliderPosition, 0.5, false)
+    end
+    SliderSet(Default)
+    
+    Slider.Changed:Connect(function(prop)
+      if prop == "Position" then
+        Slider.Position = UDim2.new(0, math.clamp(Slider.Position.X.Offset, 0, 100), 0.5, 0)
+        SliderBar2.Size = UDim2.new(0, Slider.Position.X.Offset, 1, 0)
+        local SliderPos = Slider.Position.X.Offset / 100
+        local A_1 = math.floor(((SliderPos * MaxValue) / MaxValue) * (MaxValue - MinValue) + MinValue)
+        UpdCounter(A_1)
+      end
+    end)
+    return {Slider, Increase, MaxValue, MinValue}
+  end
+  
+  function UpdateSlider(Slider, NewValue)
+    local Frame = Slider[1]
+    local Increase = Slider[2]
+    local Max = Slider[3] * Increase
+    local Min = Slider[4] * Increase
+    
+    local SliderPos = (NewValue - Min) / (Max - Min)
+    local X_Offset = SliderPos * 100
+    local SliderPosition = UDim2.new(0, X_Offset + 1, 0, 0)
+    CreateTween(Frame, "Position", SliderPosition, 0.5, false)
+  end
+  
+  function AddKeybind(parent, Configs)
+    local KeybindName = Configs.Name or "Slider!!"
+    local KeyCode = Configs.KeyCode or "E"
+    local Default = Configs.Default or false
+    local Callback = Configs.Callback or function() end
+    
+    local Frame = Create("Frame", parent, {
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Name = "Frame"
+    })Corner(Frame)Stroke(Frame)
+    
+    local TextLabel = Create("TextButton", Frame, {
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = KeybindName,
+      Size = UDim2.new(1, 0, 1, 0),
+      Position = UDim2.new(0, 35, 0, 0),
+      BackgroundTransparency = 1,
+      TextXAlignment = "Left",
+      Font = Configs_HUB.Text_Font
+    })
+    
+    local Keybind = Create("TextLabel", Frame, {
+      Font = Configs_HUB.Text_Font,
+      Size = UDim2.new(0, 18, 0, 18),
+      Text = KeyCode,
+      Position = UDim2.new(0, 5, 0, 3.5),
+      TextScaled = true,
+      TextColor3 = Configs_HUB.Cor_Text,
+      BackgroundTransparency = 1
+    })Corner(Keybind)Stroke(Keybind)
+    
+    local OnOff = Default
+    UserInputService.InputBegan:Connect(function(input)
+      if input.KeyCode == Enum.KeyCode[KeyCode] then
+        OnOff = not OnOff
+        Callback(OnOff)
+      end
+    end)
+    TextSetColor(TextLabel)
+  end
+  
+  function AddTextBox(parent, Configs)
+    local TextBoxName = Configs.Name or "TextBox!!"
+    local Default = Configs.Default or "TextBox"
+    local placeholderText = Configs.PlaceholderText or "TextBox"
+    local ClearText = Configs.ClearText or false
+    local Callback = Configs.Callback or function() end
+    
+    local Frame = Create("Frame", parent, {
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Name = "Frame"
+    })Corner(Frame)Stroke(Frame)
+    
+    local TextLabel = Create("TextButton", Frame, {
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = TextBoxName,
+      Size = UDim2.new(1, 0, 1, 0),
+      Position = UDim2.new(0, 150, 0, 0),
+      BackgroundTransparency = 1,
+      TextXAlignment = "Left",
+      Font = Configs_HUB.Text_Font
+    })
+    TextSetColor(TextLabel)
+    
+    local TextBox = Create("TextBox", Frame, {
+      Size = UDim2.new(0, 120, 0, 20),
+      Position = UDim2.new(0, 15, 0, 2.5),
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = Default,
+      ClearTextOnFocus = ClearText,
+      PlaceholderText = placeholderText,
+      TextScaled = true,
+      Font = Configs_HUB.Text_Font,
+      BackgroundTransparency = 1
+    })
+    
+    local Line = Create("Frame", TextBox, {
+      Size = UDim2.new(1, 0, 0, 1),
+      Position = UDim2.new(0.5, 0, 1, 0),
+      AnchorPoint = Vector2.new(0.5, 0.5),
+      BackgroundColor3 = Configs_HUB.Cor_Stroke,
+      BorderSizePixel = 0
+    })
+    
+    TextBox.MouseEnter:Connect(function()
+      CreateTween(Line, "Size", UDim2.new(0, 0, 0, 1), 0.3, true)
+      CreateTween(Line, "Size", UDim2.new(1, 0, 0, 1), 0.3, true)
+    end)
+    
+    TextBox.FocusLost:Connect(function()
+      Callback(TextBox.Text)
+    end)
+  end
+  
+  function AddColorPicker(parent, Configs)
+    local name = Configs.Name or "Color Picker"
+    local Default = Configs.Default or Color3.fromRGB(0, 0, 200)
+    local Callback = Configs.Callback or function() end
+    local ColorH, ColorS, ColorV = 1, 1, 1
+    Callback(Default)
+    
+    local TextButton = Create("Frame", parent, {
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+    })Stroke(TextButton)Corner(TextButton)
+    
+    local click = Create("TextButton", TextButton, {
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundTransparency = 1,
+      AutoButtonColor = false,
+      Text = ""
+    })
+    
+    local TextLabel = Create("TextLabel", TextButton, {
+      Size = UDim2.new(1, -10, 0, 25),
+      Position = UDim2.new(0, 35, 0, 0),
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      TextXAlignment = "Left",
+      Text = name,
+      Font = Configs_HUB.Text_Font,
+      BackgroundTransparency = 1
+    })
+    
+    local picker = Create("Frame", TextButton, {
+      Size = UDim2.new(0, 20, 0, 20),
+      Position = UDim2.new(0, 5, 0, 2.5),
+      BackgroundColor3 = Default
+    })Corner(picker)Stroke(picker)
+    
+    local UI_Grade = Create("ImageButton", TextButton, {
+      Size = UDim2.new(1, -100, 1, tonumber(-TextButton.Size.Y.Offset - 20)),
+      Position = UDim2.new(0, 10, 0, tonumber(TextButton.Size.Y.Offset + 12.5)),
+      Visible = false,
+      Image = "rbxassetid://4155801252"
+    })Corner(UI_Grade)Stroke(UI_Grade)local SavePos = Create("Frame", UI_Grade, {Visible = false})
+    
+    local grade = Create("TextButton", TextButton, {
+      Size = UDim2.new(0, 30, 1, tonumber(-TextButton.Size.Y.Offset - 20)),
+      Position = UDim2.new(1, -10, 0, tonumber(TextButton.Size.Y.Offset + 12.5)),
+      AnchorPoint = Vector2.new(1, 0),
+      Visible = false,
+      Text = ""
+    })Corner(grade)Stroke(grade)Create("UIGradient", grade, {
+      Rotation = 90,
+      Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 4)),
+        ColorSequenceKeypoint.new(0.20, Color3.fromRGB(234, 255, 0)),
+        ColorSequenceKeypoint.new(0.40, Color3.fromRGB(21, 255, 0)),
+        ColorSequenceKeypoint.new(0.60, Color3.fromRGB(0, 255, 255)),
+        ColorSequenceKeypoint.new(0.80, Color3.fromRGB(0, 17, 255)),
+        ColorSequenceKeypoint.new(0.90, Color3.fromRGB(255, 0, 251)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 4))
+      })
+    })local SavePos2 = Create("Frame", grade, {Visible = false, Size = UDim2.new(1, 0, 0, 0)})
+    
+    local A_1 = Create("Frame", TextButton, {
+      Size = UDim2.new(1, 0, 0, 0),
+      Position = UDim2.new(0, 0, 0, 30),
+      Visible = false
+    })Stroke(A_1)
+    
+    local Select1 = Create("Frame", grade, {
+      Size = UDim2.new(1, 0, 0, 10),
+      Position = UDim2.new(0, 0, 0, select(3, Color3.toHSV(Default))),
+      BackgroundTransparency = 1,
+      Active = true,
+      Draggable = true
+    })Corner(Select1, {CornerRadius = UDim.new(2, 0)})Stroke(Select1, {Color = Color3.fromRGB(255, 255, 255)})
+    
+    local Select2 = Create("Frame", UI_Grade, {
+      Size = UDim2.new(0, 15, 0, 15),
+      Position = UDim2.new(0, select(2, Color3.toHSV(Default)), 0, select(1, Color3.toHSV(Default))),
+      BackgroundTransparency = 1,
+      Active = true,
+      Draggable = true
+    })Corner(Select2, {CornerRadius = UDim.new(2, 0)})Stroke(Select2, {Color = Color3.fromRGB(255, 255, 255)})
+  
+    UI_Grade.MouseButton1Click:Connect(function()
+      local mouse = UserInputService:GetMouseLocation()
+      local savepos = SavePos.AbsolutePosition
+      CreateTween(Select2, "Position", UDim2.new(0, mouse.X - savepos.X, 0, tonumber(mouse.Y - savepos.Y) - 35), 0.3, false)
+    end)
+    
+    grade.MouseButton1Click:Connect(function()
+      local mouse = UserInputService:GetMouseLocation().Y - 35
+      local savepos = SavePos2.AbsolutePosition.Y
+      CreateTween(Select1, "Position", UDim2.new(0, 0, 0, mouse - savepos), 0.3, false)
+    end)
+    
+    local function callback()Callback(Color3.fromHSV(ColorH, ColorS, ColorV))end
+    local function updcolorpicker()
+      ColorH = tonumber(Select1.Position.Y.Offset) / 80
+      ColorS = tonumber(215 - Select2.Position.X.Offset) / 215
+      ColorV = tonumber(75 - Select2.Position.Y.Offset) / 75
+      UI_Grade.ImageColor3 = Color3.fromHSV(ColorH, 1, 1)
+      picker.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
+      callback()
+    end
+    
+    updcolorpicker()
+    
+    Select1.Changed:Connect(function(prop)
+      if prop == "Position" then
+        Select1.Position = UDim2.new(0, 0, 0, math.clamp(Select1.Position.Y.Offset, 0, 80))
+        updcolorpicker()
+      end
+    end)
+    
+    Select2.Changed:Connect(function(prop)
+      if prop == "Position" then
+        Select2.Position = UDim2.new(0, math.clamp(Select2.Position.X.Offset, 0, 222), 0, math.clamp(Select2.Position.Y.Offset, 0, 75))
+        updcolorpicker()
+      end
+    end)
+    
+    TextButton.Changed:Connect(function(prop)
+      if prop == "Size" then
+        if TextButton.Size.Y.Offset >= 60 then
+          picker.Position = UDim2.new(0, 5, 0, 5)
+          UI_Grade.Visible = true
+          A_1.Visible = true
+          grade.Visible = true
+        else
+          picker.Position = UDim2.new(0, 5, 0, 2.5)
+          UI_Grade.Visible = false
+          A_1.Visible = false
+          grade.Visible = false
+        end
+      end
+    end)
+    
+    local onoff = false
+    click.MouseButton1Click:Connect(function()
+      onoff = not onoff
+      if onoff == true then
+        local tween = TweenService:Create(TextButton, TweenInfo.new(0.2, Enum.EasingStyle.Linear),
+        {Size = UDim2.new(1, 0, 0, 140)})tween:play()tween.Completed:Wait()
+      else
+        local tween = TweenService:Create(TextButton, TweenInfo.new(0.2, Enum.EasingStyle.Linear),
+        {Size = UDim2.new(1, 0, 0, 25)})tween:play()tween.Completed:Wait()
+      end
+    end)
+  end
+  
+  function AddDropdown(parent, Configs)
+    local DropdownName = Configs.Name or "Dropdown!!"
+    local Default = Configs.Default or "TextBox"
+    local Options = Configs.Options or {"1", "2", "3"}
+    local Default = Configs.Default or "2"
+    local Callback = Configs.Callback or function() end
+    
+    local TextButton = Create("TextButton", parent, {
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Name = "Frame",
+      Text = "",
+      AutoButtonColor = false
+    })Corner(Frame)Stroke(Frame)
+    
+    local TextLabel = Create("TextLabel", TextButton, {
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = DropdownName,
+      Size = UDim2.new(1, 0, 0, 25),
+      Position = UDim2.new(0, 35, 0, 0),
+      BackgroundTransparency = 1,
+      TextXAlignment = "Left",
+      Font = Configs_HUB.Text_Font
+    })TextSetColor(TextLabel)
+    
+    local Line = Create("Frame", TextButton, {
+      Size = UDim2.new(1, 0, 0, 1),
+      Position = UDim2.new(0, 0, 0, 25),
+      BorderSizePixel = 0,
+      BackgroundColor3 = Configs_HUB.Cor_Stroke,
+      Visible = false
+    })
+    
+    local Arrow = Create("ImageLabel", TextButton, {
+      Image = "rbxassetid://6031090990",
+      Size = UDim2.new(0, 25, 0, 25),
+      Position = UDim2.new(0, 5, 0, 0),
+      BackgroundTransparency = 1
+    })
+    
+    local DefaultText = Create("TextLabel", TextButton, {
+      BackgroundColor3 = Configs_HUB.Cor_Hub,
+      BackgroundTransparency = 0.1,
+      Position = UDim2.new(1, -20, 0, 2.5),
+      AnchorPoint = Vector2.new(1, 0),
+      Size = UDim2.new(0, 100, 0, 20),
+      TextColor3 = Configs_HUB.Cor_DarkText,
+      TextScaled = true,
+      Font = Configs_HUB.Text_Font,
+      Text = "..."
+    })Corner(DefaultText)Stroke(DefaultText)
+    
+    local ScrollBar = Create("ScrollingFrame", TextButton, {
+      Size = UDim2.new(1, 0, 1, -25),
+      Position = UDim2.new(0, 0, 0, 25),
+      CanvasSize = UDim2.new(),
+      ScrollingDirection = "Y",
+      AutomaticCanvasSize = "Y",
+      BackgroundTransparency = 1,
+      ScrollBarThickness = 2
+    })Create("UIPadding", ScrollBar, {
+      PaddingLeft = UDim.new(0, 10),
+      PaddingRight = UDim.new(0, 10),
+      PaddingTop = UDim.new(0, 10),
+      PaddingBottom = UDim.new(0, 10)
+    })Create("UIListLayout", ScrollBar, {
+      Padding = UDim.new(0, 5)
+    })
+    
+    local function AddOption(OptionName)
+      local TextButton = Create("TextButton", ScrollBar, {
+        Size = UDim2.new(1, 0, 0, 15),
+        Text = OptionName,
+        Font = Configs_HUB.Text_Font,
+        TextSize = 12,
+        TextColor3 = Color3.fromRGB(180, 180, 180),
+        BackgroundTransparency = 1
+      })Corner(TextButton)
+      
+      local SelectTable = {}
+      local OnOff = false
+      if OptionName == Default then
+        OnOff = true
+        TextButton.BackgroundTransparency = 0.8
+        TextButton.TextColor3 = Configs_HUB.Cor_Text
+        DefaultText.Text = OptionName
+        Callback(OptionName)
+      end
+      
+      TextButton.MouseButton1Click:Connect(function()
+        for _,v in pairs(ScrollBar:GetChildren()) do
+          if v:IsA("TextButton") then
+            v.BackgroundTransparency = 1
+            v.TextColor3 = Color3.fromRGB(180, 180, 180)
+          end
+        end
+        DefaultText.Text = OptionName
+        Callback(OptionName)
+        TextButton.BackgroundTransparency = 0.8
+        TextButton.TextColor3 = Configs_HUB.Cor_Text
+      end)
+    end
+    
+    for _,v in pairs(Options) do
+      AddOption(v)
+    end
+    
+    local DropOnOff = false
+    TextButton.MouseButton1Click:Connect(function()
+      local OptionSize, OptionsNumber = 25, 0
+      for _,v in pairs(ScrollBar:GetChildren()) do
+        if v:IsA("TextButton") and OptionsNumber < 5 then
+          OptionsNumber = OptionsNumber + 1
+          OptionSize = OptionSize + tonumber(v.Size.Y.Offset + 10)
+        end
+      end
+      if not DropOnOff then
+        CreateTween(TextButton, "Size", UDim2.new(1, 0, 0, OptionSize), 0.3, false)
+        CreateTween(Arrow, "Rotation", 180, 0.3, false)
+        DropOnOff = true
+        Line.Visible = true
+      else
+        CreateTween(TextButton, "Size", UDim2.new(1, 0, 0, 25), 0.3, false)
+        CreateTween(Arrow, "Rotation", 0, 0.3, true)
+        DropOnOff = false
+        Line.Visible = false
+      end
+    end)
+    return {ScrollBar, Default, Callback, DefaultText}
+  end
+  
+  function UpdateDropdown(Dropdown, NewOptions)
+    local ScrollBar = Dropdown[1]
+    local Default = Dropdown[2]
+    local Callback = Dropdown[3]
+    local DefaultText = Dropdown[4]
+    
+    for _,v in pairs(ScrollBar:GetChildren()) do
+      if v:IsA("TextButton") then
+        v:Destroy()
+      end
+    end
+    
+    local function AddOption(OptionName)
+      local TextButton = Create("TextButton", ScrollBar, {
+        Size = UDim2.new(1, 0, 0, 15),
+        Text = OptionName,
+        Font = Configs_HUB.Text_Font,
+        TextSize = 12,
+        TextColor3 = Color3.fromRGB(180, 180, 180),
+        BackgroundTransparency = 1
+      })Corner(TextButton)
+      
+      local SelectTable = {}
+      local OnOff = false
+      if OptionName == Default then
+        OnOff = true
+        TextButton.BackgroundTransparency = 0.8
+        TextButton.TextColor3 = Configs_HUB.Cor_Text
+        DefaultText.Text = OptionName
+        Callback(OptionName)
+      else
+        DefaultText.Text = "..."
+      end
+      
+      TextButton.MouseButton1Click:Connect(function()
+        for _,v in pairs(ScrollBar:GetChildren()) do
+          if v:IsA("TextButton") then
+            v.BackgroundTransparency = 1
+            v.TextColor3 = Color3.fromRGB(180, 180, 180)
+          end
+        end
+        DefaultText.Text = OptionName
+        Callback(OptionName)
+        TextButton.BackgroundTransparency = 0.8
+        TextButton.TextColor3 = Configs_HUB.Cor_Text
+      end)
+    end
+    
+    for _,v in pairs(NewOptions) do
+      AddOption(v)
+    end
+  end
+  
+  function AddTextLabel(parent, Configs)
+    local LabelName = Configs[1] or Configs.Name or "Text Label!!"
+    
+    local Frame = Create("Frame", parent, {
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Name = "Frame"
+    })Corner(Frame)Stroke(Frame)
+    
+    local TextButton = Create("TextButton", Frame, {
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = LabelName,
+      Size = UDim2.new(1, 0, 0, 25),
+      Position = UDim2.new(0, 20, 0, 0),
+      BackgroundTransparency = 1,
+      TextXAlignment = "Left",
+      Font = Configs_HUB.Text_Font
+    })
+    TextSetColor(TextButton)
+    return TextButton
+  end
+  
+  function SetLabel(label, NewValue)
+    label.Text = NewValue
+  end
+  
+  function AddImageLabel(parent, Configs)
+    local LabelName = Configs[1] or Configs.Name or ""
+    local LabelImage = Configs[2] or Configs.Image or "Image Label"
+    
+    local Frame = Create("Frame", parent, {
+      Size = UDim2.new(0, 95, 0, 110),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Name = "Frame"
+    })Corner(Frame)Stroke(Frame)
+    
+    local TextButton = Create("TextButton", Frame, {
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = LabelName,
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundTransparency = 1,
+      Font = Configs_HUB.Text_Font
+    })
+    
+    local ImageLabel = Create("ImageLabel", Frame, {
+      Image = LabelImage,
+      Size = UDim2.new(0, 75, 0, 75),
+      Position = UDim2.new(0, 10, 0, 25)
+    })
+    TextSetColor(TextButton)
+    return ImageLabel
+  end
+  
+  function SetImage(label, NewImage)
+    label.Image = NewImage
+  end
+  
+  function AddParagraph(parent, Configs)
+    local ParagraphName1 = Configs[1] or Configs.Title or "Paragraph!!"
+    local ParagraphName2 = Configs[1] or Configs.Text or "Paragraph!!"
+    
+    local Frame = Create("Frame", parent, {
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Name = "Frame",
+      AutomaticSize = "Y"
+    })Corner(Frame)Stroke(Frame)Create("UIListLayout", Frame)Create("UIPadding", Frame, {
+      PaddingLeft = UDim.new(0, 20), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 5), PaddingBottom = UDim.new(0, 5)
+    })
+    
+    local TextButton = Create("TextButton", Frame, {
+      Name = "Frame",
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = ParagraphName1,
+      Size = UDim2.new(1, 0, 0, 0),
+      AutomaticSize = "Y",
+      BackgroundTransparency = 1,
+      TextXAlignment = "Left",
+      TextYAlignment = "Top",
+      Font = Configs_HUB.Text_Font,
+      TextWrapped = true
+    })TextSetColor(TextButton)
+    
+    local TextLabel = Create("TextLabel", Frame, {
+      Name = "Frame",
+      Size = UDim2.new(1, 0, 0, 0),
+      BackgroundTransparency = 1,
+      AutomaticSize = "Y",
+      TextXAlignment = "Left",
+      TextYAlignment = "Top",
+      TextColor3 = Configs_HUB.Cor_DarkText,
+      TextSize = 11,
+      Text = ParagraphName2,
+      Font = Configs_HUB.Text_Font,
+      TextWrapped = true
+    })
+    return {TextButton, TextLabel}
+  end
+  
+  function SetParagraph(Paragraph, NewValue)
+    Paragraph[1].Text = NewValue[1]
+    Paragraph[2].Text = NewValue[2]
+  end
+  
+  function AddSection(parent, Configs)
+    local SectionName = Configs[1] or Configs.Name or "Section!!"
+    
+    local Frame = Create("Frame", parent, {
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Hub,
+      Name = "Frame",
+      Transparency = 1
+    })Corner(Frame)
+    
+    local TextButton = Create("TextButton", Frame, {
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_DarkText,
+      Text = SectionName,
+      Size = UDim2.new(1, 0, 0, 25),
+      Position = UDim2.new(0, 10, 0, 0),
+      BackgroundTransparency = 1,
+      TextXAlignment = "Left",
+      Font = Configs_HUB.Text_Font
+    })
+    return TextButton
+  end
+  
+  function SetSection(Section, NewName)
+    Section.Text = NewName
+  end
+  
+  function AddDiscord(parent, Configs)
+    local DiscordLink = Configs[1] or Configs.DiscordLink or "https://discord.gg/"
+    local DiscordIcon = Configs[2] or Configs.DiscordIcon or "rbxassetid://"
+    local DiscordTitle = Configs[3] or Configs.DiscordTitle or ""
+    
+    local Frame = Create("Frame", parent, {
+      Size = UDim2.new(1, 0, 0, 110),
+      BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+      Name = "Frame",
+      AutomaticSize = "Y"
+    })
+    
+    local LinkLabel = Create("TextLabel", Frame, {
+      Size = UDim2.new(1, 0, 0, 25),
+      Text = DiscordLink,
+      TextXAlignment = "Left",
+      BackgroundTransparency = 1,
+      Position = UDim2.new(0, 12, 0, 0),
+      TextColor3 = Color3.fromRGB(0, 120, 255),
+      Font = Enum.Font.GothamBold,
+      TextSize = 14
+    })
+    
+    local TitleLabel = Create("TextLabel", Frame, {
+      Size = UDim2.new(1, 0, 0, 25),
+      Text = DiscordTitle,
+      TextXAlignment = "Left",
+      BackgroundTransparency = 1,
+      Position = UDim2.new(0, 60, 0, 25),
+      TextColor3 = Color3.fromRGB(200, 200, 200),
+      Font = Enum.Font.GothamBold,
+      TextSize = 14
+    })
+    
+    local IconLabel = Create("ImageLabel", Frame, {
+      Size = UDim2.new(0, 40, 0, 40),
+      AnchorPoint = Vector2.new(0, 0.5),
+      Position = UDim2.new(0, 12, 0.45, 0),
+      Image = DiscordIcon
+    })Corner(IconLabel)
+    
+    local JoinButton = Create("TextButton", Frame, {
+      Size = UDim2.new(1, -24, 0, 25),
+      AnchorPoint = Vector2.new(0.5, 1),
+      Position = UDim2.new(0.5, 0, 1, -8),
+      Text = "Join",
+      Font = Enum.Font.GothamBold,
+      TextSize = 15,
+      TextColor3 = Color3.fromRGB(220, 220, 220),
+      BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+    })Corner(IconLabel)
+    
+    local time = tick()
+    ClickConter = 0
+    JoinButton.MouseButton1Click:Connect(function()
+      if ClickConter == 0 or tick() - time > 5 then time = tick() setclipboard(DiscordLink) ClickConter = ClickConter + 1
+        JoinButton.Text = "Copied to Clipboard"
+        JoinButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        JoinButton.TextColor3 = Color3.fromRGB(150, 150, 150)
+        task.wait(5)
+        JoinButton.Text = "Join"
+        JoinButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+        JoinButton.TextColor3 = Color3.fromRGB(220, 220, 220)
+      end
+    end)
+  end
+  return Menu
+end
