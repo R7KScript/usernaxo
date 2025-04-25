@@ -1,0 +1,263 @@
+local function MakeWindow(config)
+    -- إنشاء الواجهة الرئيسية
+    local ESPGUI = Instance.new("ScreenGui")
+    ESPGUI.Name = config.Hub.Title or "REDz_HUB"
+    ESPGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ESPGUI.Parent = game:GetService("CoreGui")
+
+    -- الإطار الرئيسي
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 500, 0, 350)
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.ClipsDescendants = true
+    MainFrame.Parent = ESPGUI
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 6)
+    UICorner.Parent = MainFrame
+
+    -- شريط العنوان
+    local TopBar = Instance.new("Frame")
+    TopBar.Name = "TopBar"
+    TopBar.Size = UDim2.new(1, 0, 0, 30)
+    TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    TopBar.BorderSizePixel = 0
+    TopBar.Parent = MainFrame
+
+    local Title = Instance.new("TextLabel")
+    Title.Name = "Title"
+    Title.Size = UDim2.new(0, 200, 1, 0)
+    Title.Position = UDim2.new(0, 10, 0, 0)
+    Title.BackgroundTransparency = 1
+    Title.Text = config.Hub.Title or "REDz HUB"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 14
+    Title.Parent = TopBar
+
+    local SubTitle = Instance.new("TextLabel")
+    SubTitle.Name = "SubTitle"
+    SubTitle.Size = UDim2.new(0, 200, 1, 0)
+    SubTitle.Position = UDim2.new(0, 10, 0, 15)
+    SubTitle.BackgroundTransparency = 1
+    SubTitle.Text = config.Hub.Animation or "by : redz9999"
+    SubTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+    SubTitle.TextXAlignment = Enum.TextXAlignment.Left
+    SubTitle.Font = Enum.Font.Gotham
+    SubTitle.TextSize = 12
+    SubTitle.Parent = TopBar
+
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Name = "CloseButton"
+    CloseButton.Size = UDim2.new(0, 30, 1, 0)
+    CloseButton.Position = UDim2.new(1, -30, 0, 0)
+    CloseButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    CloseButton.BorderSizePixel = 0
+    CloseButton.Text = "X"
+    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseButton.Font = Enum.Font.GothamBold
+    CloseButton.TextSize = 14
+    CloseButton.Parent = TopBar
+
+    CloseButton.MouseButton1Click:Connect(function()
+        ESPGUI:Destroy()
+    end)
+
+    -- منطقة التبويبات
+    local TabArea = Instance.new("Frame")
+    TabArea.Name = "TabArea"
+    TabArea.Size = UDim2.new(0, 120, 1, -30)
+    TabArea.Position = UDim2.new(0, 0, 0, 30)
+    TabArea.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    TabArea.BorderSizePixel = 0
+    TabArea.Parent = MainFrame
+
+    -- منطقة المحتوى
+    local ContentArea = Instance.new("Frame")
+    ContentArea.Name = "ContentArea"
+    ContentArea.Size = UDim2.new(1, -120, 1, -30)
+    ContentArea.Position = UDim2.new(0, 120, 0, 30)
+    ContentArea.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    ContentArea.BorderSizePixel = 0
+    ContentArea.ClipsDescendants = true
+    ContentArea.Parent = MainFrame
+
+    -- إنشاء نظام التبويبات
+    local Tabs = {}
+    local CurrentTab = nil
+
+    local function CreateTab(tabName, tabIcon)
+        local TabButton = Instance.new("TextButton")
+        TabButton.Name = tabName
+        TabButton.Size = UDim2.new(1, -10, 0, 30)
+        TabButton.Position = UDim2.new(0, 5, 0, 5 + (#Tabs * 35))
+        TabButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        TabButton.BorderSizePixel = 0
+        TabButton.Text = "   "..tabName
+        TabButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+        TabButton.TextXAlignment = Enum.TextXAlignment.Left
+        TabButton.Font = Enum.Font.Gotham
+        TabButton.TextSize = 12
+        TabButton.Parent = TabArea
+
+        if tabIcon then
+            local Icon = Instance.new("ImageLabel")
+            Icon.Name = "Icon"
+            Icon.Size = UDim2.new(0, 20, 0, 20)
+            Icon.Position = UDim2.new(0, 5, 0.5, -10)
+            Icon.BackgroundTransparency = 1
+            Icon.Image = tabIcon
+            Icon.Parent = TabButton
+        end
+
+        local TabContent = Instance.new("ScrollingFrame")
+        TabContent.Name = tabName
+        TabContent.Size = UDim2.new(1, 0, 1, 0)
+        TabContent.Position = UDim2.new(0, 0, 0, 0)
+        TabContent.BackgroundTransparency = 1
+        TabContent.BorderSizePixel = 0
+        TabContent.ScrollBarThickness = 3
+        TabContent.ScrollBarImageColor3 = Color3.fromRGB(50, 50, 50)
+        TabContent.Visible = false
+        TabContent.Parent = ContentArea
+
+        local UIListLayout = Instance.new("UIListLayout")
+        UIListLayout.Padding = UDim.new(0, 5)
+        UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        UIListLayout.Parent = TabContent
+
+        TabButton.MouseButton1Click:Connect(function()
+            if CurrentTab then
+                CurrentTab.Visible = false
+                for _, btn in pairs(TabArea:GetChildren()) do
+                    if btn:IsA("TextButton") then
+                        btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+                    end
+                end
+            end
+            
+            TabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            TabContent.Visible = true
+            CurrentTab = TabContent
+        end)
+
+        table.insert(Tabs, {
+            Name = tabName,
+            Button = TabButton,
+            Content = TabContent
+        })
+
+        if #Tabs == 1 then
+            TabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            TabContent.Visible = true
+            CurrentTab = TabContent
+        end
+
+        return {
+            AddButton = function(buttonName, callback)
+                local Button = Instance.new("TextButton")
+                Button.Name = buttonName
+                Button.Size = UDim2.new(1, -10, 0, 30)
+                Button.Position = UDim2.new(0, 5, 0, 0)
+                Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+                Button.BorderSizePixel = 0
+                Button.Text = buttonName
+                Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+                Button.Font = Enum.Font.Gotham
+                Button.TextSize = 12
+                Button.Parent = TabContent
+
+                local UICorner = Instance.new("UICorner")
+                UICorner.CornerRadius = UDim.new(0, 4)
+                UICorner.Parent = Button
+
+                Button.MouseButton1Click:Connect(callback)
+
+                return Button
+            end,
+            
+            AddToggle = function(toggleName, defaultState, callback)
+                local ToggleFrame = Instance.new("Frame")
+                ToggleFrame.Name = toggleName
+                ToggleFrame.Size = UDim2.new(1, -10, 0, 30)
+                ToggleFrame.BackgroundTransparency = 1
+                ToggleFrame.Parent = TabContent
+
+                local ToggleLabel = Instance.new("TextLabel")
+                ToggleLabel.Name = "Label"
+                ToggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+                ToggleLabel.BackgroundTransparency = 1
+                ToggleLabel.Text = toggleName
+                ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+                ToggleLabel.Font = Enum.Font.Gotham
+                ToggleLabel.TextSize = 12
+                ToggleLabel.Parent = ToggleFrame
+
+                local ToggleButton = Instance.new("TextButton")
+                ToggleButton.Name = "Toggle"
+                ToggleButton.Size = UDim2.new(0, 50, 0, 25)
+                ToggleButton.Position = UDim2.new(1, -55, 0.5, -12)
+                ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                ToggleButton.BorderSizePixel = 0
+                ToggleButton.Text = ""
+                ToggleButton.Parent = ToggleFrame
+
+                local UICorner = Instance.new("UICorner")
+                UICorner.CornerRadius = UDim.new(0, 12)
+                UICorner.Parent = ToggleButton
+
+                local ToggleCircle = Instance.new("Frame")
+                ToggleCircle.Name = "Circle"
+                ToggleCircle.Size = UDim2.new(0, 20, 0, 20)
+                ToggleCircle.Position = defaultState and UDim2.new(1, -22, 0, 2) or UDim2.new(0, 2, 0, 2)
+                ToggleCircle.BackgroundColor3 = defaultState and Color3.fromRGB(50, 200, 50) or Color3.fromRGB(200, 50, 50)
+                ToggleCircle.BorderSizePixel = 0
+                ToggleCircle.Parent = ToggleButton
+
+                local UICorner2 = Instance.new("UICorner")
+                UICorner2.CornerRadius = UDim.new(1, 0)
+                UICorner2.Parent = ToggleCircle
+
+                local State = defaultState or false
+
+                ToggleButton.MouseButton1Click:Connect(function()
+                    State = not State
+                    if State then
+                        ToggleCircle:TweenPosition(UDim2.new(1, -22, 0, 2), "Out", "Sine", 0.2, true)
+                        ToggleCircle.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+                    else
+                        ToggleCircle:TweenPosition(UDim2.new(0, 2, 0, 2), "Out", "Sine", 0.2, true)
+                        ToggleCircle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+                    end
+                    callback(State)
+                end)
+
+                return {
+                    SetState = function(newState)
+                        State = newState
+                        if State then
+                            ToggleCircle:TweenPosition(UDim2.new(1, -22, 0, 2), "Out", "Sine", 0.2, true)
+                            ToggleCircle.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+                        else
+                            ToggleCircle:TweenPosition(UDim2.new(0, 2, 0, 2), "Out", "Sine", 0.2, true)
+                            ToggleCircle.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+                        end
+                    end,
+                    GetState = function()
+                        return State
+                    end
+                }
+            end
+        }
+    end
+
+    return {
+        GUI = ESPGUI,
+        CreateTab = CreateTab
+    }
+end
