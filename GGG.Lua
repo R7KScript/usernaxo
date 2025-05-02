@@ -675,12 +675,12 @@ function MakeWindow(Configs)
     return Container
   end
   
-  function AddButton(parent, Configs)
-    local ButtonName = Configs.Name or "Button"
+function AddButton(parent, Configs)
+    local ButtonName = Configs.Name or "زر"
     local Callback = Configs.Callback or function() end
 
     local TextButton = Create("TextButton", parent, {
-        Size = UDim2.new(1, 0, 0, 35),
+        Size = UDim2.new(1, 0, 0, 45),  -- زيادة الارتفاع
         BackgroundColor3 = Configs_HUB.Cor_Options,
         Name = "ButtonFrame",
         Text = "",
@@ -689,52 +689,49 @@ function MakeWindow(Configs)
     Corner(TextButton)
     Stroke(TextButton)
 
+    -- النص العربي بحجم أكبر ومحاذاة لليمين
     local TextLabel = Create("TextLabel", TextButton, {
-        TextSize = 14,
+        TextSize = 18,  -- حجم خط أكبر
         TextColor3 = Configs_HUB.Cor_Text,
         Text = ButtonName,
         Size = UDim2.new(1, -60, 1, 0),
         Position = UDim2.new(0, 15, 0, 0),
         BackgroundTransparency = 1,
-        TextXAlignment = "Left",
-        Font = Configs_HUB.Text_Font
+        TextXAlignment = "Right",  -- محاذاة لليمين للنص العربي
+        Font = Enum.Font.GothamBold,  -- خط عريض
+        TextWrapped = true  -- السماح بلف النص إذا طال
     })
 
+    -- الصورة على اليسار بدلاً من اليمين
     local ImageLabel = Create("ImageLabel", TextButton, {
         Image = "rbxassetid://11401853226",
-        Size = UDim2.new(0, 24, 0, 24),
-        Position = UDim2.new(1, -30, 0.5, 0),
-        AnchorPoint = Vector2.new(1, 0.5),
+        Size = UDim2.new(0, 28, 0, 28),  -- حجم أكبر قليلاً
+        Position = UDim2.new(0, 10, 0.5, 0),  -- موقع على اليسار
+        AnchorPoint = Vector2.new(0, 0.5),
         BackgroundTransparency = 1,
         ImageColor3 = Color3.fromRGB(0, 150, 255)
     })
 
+    -- تعديل تأثيرات Hover لتتناسب مع التغييرات
     TextButton.MouseEnter:Connect(function()
         CreateTween(TextButton, "BackgroundColor3", Color3.fromRGB(60, 60, 80), 0.2, false)
         CreateTween(ImageLabel, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2, false)
+        CreateTween(ImageLabel, "Size", UDim2.new(0, 30, 0, 30), 0.2, false)
     end)
 
     TextButton.MouseLeave:Connect(function()
         CreateTween(TextButton, "BackgroundColor3", Configs_HUB.Cor_Options, 0.2, false)
         CreateTween(ImageLabel, "ImageColor3", Color3.fromRGB(0, 150, 255), 0.2, false)
+        CreateTween(ImageLabel, "Size", UDim2.new(0, 28, 0, 28), 0.2, false)
     end)
 
+    -- تأثيرات الضغط
     TextButton.MouseButton1Down:Connect(function()
-        CreateTween(TextButton, "Size", UDim2.new(1, -5, 0, 33), 0.1, false)
+        CreateTween(TextButton, "Size", UDim2.new(1, -5, 0, 43), 0.1, false)
+        CreateTween(ImageLabel, "Size", UDim2.new(0, 26, 0, 26), 0.1, false)
     end)
 
-    TextButton.MouseButton1Up:Connect(function()
-        CreateTween(TextButton, "Size", UDim2.new(1, 0, 0, 35), 0.1, false)
-    end)
-
-    TextButton.MouseButton1Click:Connect(function()
-        Callback()
-        CreateTween(ImageLabel, "ImageColor3", Color3.fromRGB(0, 200, 255), 0.2, true)
-        CreateTween(ImageLabel, "ImageColor3", Color3.fromRGB(0, 150, 255), 0.2, false)
-    end)
-
-    TextSetColor(TextLabel)
-end
+    TextButton.MouseButton
   
   function AddToggle(parent, Configs)
     local ToggleName = Configs.Name or "Toggle!!"
