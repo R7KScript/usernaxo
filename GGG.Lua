@@ -1,11 +1,11 @@
-local Configs_HUB = {
-  Cor_Hub = Color3.fromRGB(0, 0, 0),
-  Cor_Options = Color3.fromRGB(0, 0, 0),
-  Cor_Stroke = Color3.fromRGB(76, 175, 80),
-  Cor_Text = Color3.fromRGB(240, 240, 240),
-  Cor_DarkText = Color3.fromRGB(240, 240, 240),
-  Corner_Radius = UDim.new(0,4),
-  Text_Font = Enum.Font.FredokaOne
+local Configs_HUB = { 
+  Cor_Hub = Color3.fromRGB(0, 0, 0), 
+  Cor_Options = Color3.fromRGB(0, 0, 0), 
+  Cor_Stroke = Color3.fromRGB(128, 0, 128),  -- لون بنفسجي
+  Cor_Text = Color3.fromRGB(240, 240, 240), 
+  Cor_DarkText = Color3.fromRGB(240, 240, 240), 
+  Corner_Radius = UDim.new(0, 4), 
+  Text_Font = Enum.Font.FredokaOne 
 }
 
 local CoreGui = game:GetService("CoreGui")
@@ -675,63 +675,45 @@ function MakeWindow(Configs)
     return Container
   end
   
-function AddButton(parent, Configs)
-    local ButtonName = Configs.Name or "زر"
+  function AddButton(parent, Configs)
+    local ButtonName = Configs.Name or "Button!!"
     local Callback = Configs.Callback or function() end
-
+    
     local TextButton = Create("TextButton", parent, {
-        Size = UDim2.new(1, 0, 0, 45),  -- زيادة الارتفاع
-        BackgroundColor3 = Configs_HUB.Cor_Options,
-        Name = "ButtonFrame",
-        Text = "",
-        AutoButtonColor = false
-    })
-    Corner(TextButton)
-    Stroke(TextButton)
-
-    -- النص العربي بحجم أكبر ومحاذاة لليمين
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Name = "Frame",
+      Text = "",
+      AutoButtonColor = false
+    })Corner(TextButton)Stroke(TextButton)
+    
     local TextLabel = Create("TextLabel", TextButton, {
-        TextSize = 18,  -- حجم خط أكبر
-        TextColor3 = Configs_HUB.Cor_Text,
-        Text = ButtonName,
-        Size = UDim2.new(1, -60, 1, 0),
-        Position = UDim2.new(0, 15, 0, 0),
-        BackgroundTransparency = 1,
-        TextXAlignment = "Right",  -- محاذاة لليمين للنص العربي
-        Font = Enum.Font.GothamBold,  -- خط عريض
-        TextWrapped = true  -- السماح بلف النص إذا طال
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = ButtonName,
+      Size = UDim2.new(1, 0, 1, 0),
+      Position = UDim2.new(0, 35, 0, 0),
+      BackgroundTransparency = 1,
+      TextXAlignment = "Left",
+      Font = Configs_HUB.Text_Font
     })
-
-    -- الصورة على اليسار بدلاً من اليمين
+    
     local ImageLabel = Create("ImageLabel", TextButton, {
-        Image = "rbxassetid://11401853226",
-        Size = UDim2.new(0, 28, 0, 28),  -- حجم أكبر قليلاً
-        Position = UDim2.new(0, 10, 0.5, 0),  -- موقع على اليسار
-        AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundTransparency = 1,
-        ImageColor3 = Color3.fromRGB(0, 150, 255)
+      Image = "rbxassetid://92491735511394",
+      Size = UDim2.new(0, 20, 0, 20),
+      Position = UDim2.new(0, 5, 0, 2.5),
+      BackgroundTransparency = 1,
+      ImageColor3 = Configs_HUB.Cor_Stroke
     })
-
-    -- تعديل تأثيرات Hover لتتناسب مع التغييرات
-    TextButton.MouseEnter:Connect(function()
-        CreateTween(TextButton, "BackgroundColor3", Color3.fromRGB(60, 60, 80), 0.2, false)
-        CreateTween(ImageLabel, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2, false)
-        CreateTween(ImageLabel, "Size", UDim2.new(0, 30, 0, 30), 0.2, false)
+    
+    TextButton.MouseButton1Click:Connect(function()
+      Callback("Click!!")
+      CreateTween(ImageLabel, "ImageColor3", Color3.fromRGB(30, 140, 200), 0.2, true)
+      CreateTween(ImageLabel, "ImageColor3", Configs_HUB.Cor_Stroke, 0.2, false)
     end)
-
-    TextButton.MouseLeave:Connect(function()
-        CreateTween(TextButton, "BackgroundColor3", Configs_HUB.Cor_Options, 0.2, false)
-        CreateTween(ImageLabel, "ImageColor3", Color3.fromRGB(0, 150, 255), 0.2, false)
-        CreateTween(ImageLabel, "Size", UDim2.new(0, 28, 0, 28), 0.2, false)
-    end)
-
-    -- تأثيرات الضغط
-    TextButton.MouseButton1Down:Connect(function()
-        CreateTween(TextButton, "Size", UDim2.new(1, -5, 0, 43), 0.1, false)
-        CreateTween(ImageLabel, "Size", UDim2.new(0, 26, 0, 26), 0.1, false)
-    end)
-
-    TextButton.MouseButton
+    
+    TextSetColor(TextLabel)
+  end
   
   function AddToggle(parent, Configs)
     local ToggleName = Configs.Name or "Toggle!!"
@@ -1576,71 +1558,113 @@ function AddButton(parent, Configs)
     Section.Text = NewName
   end
   
-  function AddDiscord(parent, Configs)
-    local DiscordLink = Configs[1] or Configs.DiscordLink or "https://discord.gg/"
-    local DiscordIcon = Configs[2] or Configs.DiscordIcon or "rbxassetid://"
-    local DiscordTitle = Configs[3] or Configs.DiscordTitle or ""
+  function AddEnhancedDiscord(parent, configs)
+    local DiscordLink = configs.Link or "https://discord.gg/"
+    local DiscordIcon = configs.Icon or "rbxassetid://7072718362"
+    local Messages = configs.Messages or {"انضم إلى سيرفر الديسكورد!", "احصل على آخر التحديثات!"}
+    local UpdateInterval = configs.Interval or 5 -- ثواني بين كل تغيير للنص
     
+    -- إنشاء الإطار الرئيسي بحجم أكبر
     local Frame = Create("Frame", parent, {
-      Size = UDim2.new(1, 0, 0, 110),
-      BackgroundColor3 = Color3.fromRGB(30, 30, 30),
-      Name = "Frame",
-      AutomaticSize = "Y"
-    })
+        Size = UDim2.new(1, 0, 0, 150), -- حجم أكبر
+        BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+        Name = "DiscordFrame",
+        AutomaticSize = "Y"
+    }) Corner(Frame) Stroke(Frame, {Color = Color3.fromRGB(100, 100, 100)})
     
-    local LinkLabel = Create("TextLabel", Frame, {
-      Size = UDim2.new(1, 0, 0, 25),
-      Text = DiscordLink,
-      TextXAlignment = "Left",
-      BackgroundTransparency = 1,
-      Position = UDim2.new(0, 12, 0, 0),
-      TextColor3 = Color3.fromRGB(0, 120, 255),
-      Font = Enum.Font.GothamBold,
-      TextSize = 14
-    })
-    
-    local TitleLabel = Create("TextLabel", Frame, {
-      Size = UDim2.new(1, 0, 0, 25),
-      Text = DiscordTitle,
-      TextXAlignment = "Left",
-      BackgroundTransparency = 1,
-      Position = UDim2.new(0, 60, 0, 25),
-      TextColor3 = Color3.fromRGB(200, 200, 200),
-      Font = Enum.Font.GothamBold,
-      TextSize = 14
-    })
-    
+    -- أيقونة الديسكورد (أكبر حجمًا)
     local IconLabel = Create("ImageLabel", Frame, {
-      Size = UDim2.new(0, 40, 0, 40),
-      AnchorPoint = Vector2.new(0, 0.5),
-      Position = UDim2.new(0, 12, 0.45, 0),
-      Image = DiscordIcon
-    })Corner(IconLabel)
+        Size = UDim2.new(0, 60, 0, 60),
+        Position = UDim2.new(0, 15, 0, 15),
+        Image = DiscordIcon,
+        BackgroundTransparency = 1
+    }) Corner(IconLabel)
     
+    -- عنوان الديسكورد
+    local TitleLabel = Create("TextLabel", Frame, {
+        Size = UDim2.new(1, -90, 0, 30),
+        Position = UDim2.new(0, 85, 0, 15),
+        Text = "سيرفر الديسكورد الرسمي",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 16,
+        TextXAlignment = "Left",
+        BackgroundTransparency = 1
+    })
+    
+    -- نص متغير (يظهر رسائل مختلفة)
+    local MessageLabel = Create("TextLabel", Frame, {
+        Size = UDim2.new(1, -30, 0, 40),
+        Position = UDim2.new(0, 15, 0, 80),
+        Text = Messages[1],
+        TextColor3 = Color3.fromRGB(200, 200, 200),
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextWrapped = true,
+        TextXAlignment = "Left",
+        BackgroundTransparency = 1
+    })
+    
+    -- عدد اللاعبين الحاليين
+    local PlayersLabel = Create("TextLabel", Frame, {
+        Size = UDim2.new(1, -30, 0, 20),
+        Position = UDim2.new(0, 15, 0, 120),
+        Text = "اللاعبون الآن: "..#game:GetService("Players"):GetPlayers(),
+        TextColor3 = Color3.fromRGB(150, 150, 255),
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextXAlignment = "Left",
+        BackgroundTransparency = 1
+    })
+    
+    -- زر الانضمام
     local JoinButton = Create("TextButton", Frame, {
-      Size = UDim2.new(1, -24, 0, 25),
-      AnchorPoint = Vector2.new(0.5, 1),
-      Position = UDim2.new(0.5, 0, 1, -8),
-      Text = "Join",
-      Font = Enum.Font.GothamBold,
-      TextSize = 15,
-      TextColor3 = Color3.fromRGB(220, 220, 220),
-      BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-    })Corner(IconLabel)
+        Size = UDim2.new(1, -30, 0, 35),
+        Position = UDim2.new(0, 15, 0, 145),
+        Text = "انضم إلى السيرفر",
+        Font = Enum.Font.GothamBold,
+        TextSize = 16,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundColor3 = Color3.fromRGB(88, 101, 242), -- لون ديسكورد الأزرق
+        AutoButtonColor = false
+    }) Corner(JoinButton) Stroke(JoinButton)
     
-    local time = tick()
-    ClickConter = 0
-    JoinButton.MouseButton1Click:Connect(function()
-      if ClickConter == 0 or tick() - time > 5 then time = tick() setclipboard(DiscordLink) ClickConter = ClickConter + 1
-        JoinButton.Text = "Copied to Clipboard"
-        JoinButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-        JoinButton.TextColor3 = Color3.fromRGB(150, 150, 150)
-        task.wait(5)
-        JoinButton.Text = "Join"
-        JoinButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-        JoinButton.TextColor3 = Color3.fromRGB(220, 220, 220)
-      end
+    -- تأثيرات عند التحويم
+    JoinButton.MouseEnter:Connect(function()
+        CreateTween(JoinButton, "BackgroundColor3", Color3.fromRGB(71, 82, 196), 0.2)
     end)
-  end
-  return Menu
+    
+    JoinButton.MouseLeave:Connect(function()
+        CreateTween(JoinButton, "BackgroundColor3", Color3.fromRGB(88, 101, 242), 0.2)
+    end)
+    
+    -- تغيير النص بشكل دوري
+    local currentMessage = 1
+    task.spawn(function()
+        while Frame and Frame.Parent do
+            task.wait(UpdateInterval)
+            currentMessage = currentMessage + 1 > #Messages and 1 or currentMessage + 1
+            MessageLabel.Text = Messages[currentMessage]
+            
+            -- تحديث عدد اللاعبين
+            PlayersLabel.Text = "اللاعبون الآن: "..#game:GetService("Players"):GetPlayers()
+        end
+    end)
+    
+    -- نسخ الرابط عند النقر
+    JoinButton.MouseButton1Click:Connect(function()
+        setclipboard(DiscordLink)
+        local originalText = JoinButton.Text
+        JoinButton.Text = "تم النسخ! ✅"
+        JoinButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+        
+        task.wait(2)
+        
+        if JoinButton then
+            JoinButton.Text = originalText
+            JoinButton.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+        end
+    end)
+    
+    return Frame
 end
