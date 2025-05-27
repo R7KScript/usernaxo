@@ -1,183 +1,148 @@
-local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local UICorner = Instance.new("UICorner")
-local Title = Instance.new("TextLabel")
-local ScrollingFrame = Instance.new("ScrollingFrame")
-local UIGridLayout = Instance.new("UIGridLayout")
-local CloseButton = Instance.new("TextButton")
-local MiniButton = Instance.new("TextButton")
-
-local purpleColors = {
-    main = Color3.fromRGB(102, 51, 153),
-    light = Color3.fromRGB(147, 112, 219),
-    accent = Color3.fromRGB(186, 85, 211),
-    text = Color3.fromRGB(255, 255, 255)
-}
-
-ScreenGui.Name = "MarkleHub"
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = purpleColors.main
-MainFrame.Size = UDim2.fromOffset(500, 350)
-MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
-MainFrame.Active = true
-MainFrame.Draggable = true
-
-UICorner.CornerRadius = UDim.new(0, 15)
-UICorner.Parent = MainFrame
-
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Parent = MainFrame
-UIStroke.Color = purpleColors.light
-UIStroke.Thickness = 2
-UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-Title.Name = "Title"
-Title.Parent = MainFrame
-Title.BackgroundColor3 = purpleColors.main
-Title.BackgroundTransparency = 1
-Title.Size = UDim2.new(1, -100, 0, 60)
-Title.Position = UDim2.new(0, 15, 0, 0)
-Title.Font = Enum.Font.GothamBold
-Title.Text = "Markle Hub"
-Title.TextColor3 = purpleColors.text
-Title.TextScaled = true
-Title.TextWrapped = true
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.TextSize = 24
-
-CloseButton.Name = "CloseButton"
-CloseButton.Parent = MainFrame
-CloseButton.BackgroundColor3 = Color3.fromRGB(220, 20, 60)
-CloseButton.Position = UDim2.new(1, -45, 0, 15)
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextScaled = true
-CloseButton.TextWrapped = true
-
-local CloseButtonCorner = Instance.new("UICorner")
-CloseButtonCorner.CornerRadius = UDim.new(0, 8)
-CloseButtonCorner.Parent = CloseButton
-
-MiniButton.Name = "MiniButton"
-MiniButton.Parent = ScreenGui
-MiniButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MiniButton.Size = UDim2.new(0, 30, 0, 30)
-MiniButton.Position = UDim2.new(0, 10, 0.5, -15)
-MiniButton.Font = Enum.Font.GothamBold
-MiniButton.Text = "≡"
-MiniButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-MiniButton.TextScaled = true
-MiniButton.TextWrapped = true
-MiniButton.Visible = false
-MiniButton.Active = true
-MiniButton.Draggable = true
-
-local MiniButtonCorner = Instance.new("UICorner")
-MiniButtonCorner.CornerRadius = UDim.new(0, 6)
-MiniButtonCorner.Parent = MiniButton
-
-ScrollingFrame.Name = "ScrollingFrame"
-ScrollingFrame.Parent = MainFrame
-ScrollingFrame.BackgroundColor3 = purpleColors.main
-ScrollingFrame.BackgroundTransparency = 1
-ScrollingFrame.Size = UDim2.new(1, -20, 1, -70)
-ScrollingFrame.Position = UDim2.new(0, 10, 0, 60)
-ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-ScrollingFrame.ScrollBarThickness = 8
-ScrollingFrame.ScrollBarImageColor3 = purpleColors.light
-
-UIGridLayout.Parent = ScrollingFrame
-UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIGridLayout.CellSize = UDim2.new(0, 110, 0, 110)
-UIGridLayout.CellPadding = UDim2.new(0, 15, 0, 15)
-
-local function AddTitle(text)
-    Title.Text = text
+local function CreateUIElement(class, props)
+	local inst = Instance.new(class)
+	for prop, val in pairs(props) do
+		inst[prop] = val
+	end
+	return inst
 end
 
-local function AddButton(text, callback)
-    local Button = Instance.new("TextButton")
-    Button.Parent = ScrollingFrame
-    Button.BackgroundColor3 = purpleColors.light
-    Button.Size = UDim2.new(0, 110, 0, 110)
-    Button.Font = Enum.Font.GothamSemibold
-    Button.Text = text
-    Button.TextColor3 = purpleColors.text
-    Button.TextScaled = true
-    Button.TextWrapped = true
-    
-    Button.MouseEnter:Connect(function()
-        game:GetService("TweenService"):Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = purpleColors.accent}):Play()
-    end)
-    
-    Button.MouseLeave:Connect(function()
-        game:GetService("TweenService"):Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = purpleColors.light}):Play()
-    end)
-    
-    local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 12)
-    ButtonCorner.Parent = Button
-    
-    local ButtonShadow = Instance.new("UIStroke")
-    ButtonShadow.Parent = Button
-    ButtonShadow.Color = purpleColors.main
-    ButtonShadow.Thickness = 2
-    
-    Button.MouseButton1Click:Connect(callback)
-    
-    local totalHeight = UIGridLayout.AbsoluteContentSize.Y + 20
-    ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-end
+local ScreenGui = CreateUIElement("ScreenGui", {
+	Name = "MarkleHub",
+	Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui"),
+	ResetOnSpawn = false
+})
 
-local isMinimized = false
+local MainFrame = CreateUIElement("Frame", {
+	Name = "MainFrame",
+	Parent = ScreenGui,
+	BackgroundColor3 = Color3.fromRGB(30, 30, 35),
+	Size = UDim2.fromOffset(450, 300),
+	Position = UDim2.new(0.5, -225, 0.5, -150),
+	Active = true,
+	Draggable = true
+})
+
+local Shadow = CreateUIElement("ImageLabel", {
+	Name = "Shadow",
+	Parent = MainFrame,
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.new(0.5, 0, 0.5, 0),
+	Size = UDim2.new(1, 60, 1, 60),
+	BackgroundTransparency = 1,
+	Image = "rbxassetid://1316045217",
+	ImageTransparency = 0.5,
+	ZIndex = -1
+})
+
+CreateUIElement("UICorner", {
+	CornerRadius = UDim.new(0, 12),
+	Parent = MainFrame
+})
+
+local Title = CreateUIElement("TextLabel", {
+	Name = "Title",
+	Parent = MainFrame,
+	BackgroundColor3 = Color3.fromRGB(30, 30, 35),
+	BackgroundTransparency = 1,
+	Size = UDim2.new(1, -40, 0, 50),
+	Position = UDim2.new(0, 10, 0, 0),
+	Font = Enum.Font.GothamBold,
+	Text = "Hub",
+	TextColor3 = Color3.fromRGB(200, 200, 255),
+	TextScaled = true,
+	TextWrapped = true,
+	TextXAlignment = Enum.TextXAlignment.Left
+})
+
+local CloseButton = CreateUIElement("TextButton", {
+	Name = "CloseButton",
+	Parent = MainFrame,
+	BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+	Position = UDim2.new(1, -40, 0, 10),
+	Size = UDim2.new(0, 30, 0, 30),
+	Font = Enum.Font.GothamBold,
+	Text = "X",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextScaled = true,
+	TextWrapped = true
+})
 
 CloseButton.MouseButton1Click:Connect(function()
-    if isMinimized then
-        MiniButton.Visible = false
-        ScreenGui:Destroy()
-    else
-        MainFrame.Visible = false
-        MiniButton.Visible = true
-        isMinimized = true
-    end
+	ScreenGui:Destroy()
 end)
+
+CloseButton.MouseEnter:Connect(function()
+	CloseButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+end)
+CloseButton.MouseLeave:Connect(function()
+	CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+end)
+
+local ScrollingFrame = CreateUIElement("ScrollingFrame", {
+	Name = "ScrollingFrame",
+	Parent = MainFrame,
+	BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+	BackgroundTransparency = 1,
+	Size = UDim2.new(1, 0, 1, -50),
+	Position = UDim2.new(0, 0, 0, 50),
+	CanvasSize = UDim2.new(0, 0, 0, 0),
+	ScrollBarThickness = 6
+})
+
+local UIGridLayout = CreateUIElement("UIGridLayout", {
+	Parent = ScrollingFrame,
+	SortOrder = Enum.SortOrder.LayoutOrder,
+	CellSize = UDim2.new(0, 100, 0, 100),
+	CellPadding = UDim2.new(0, 10, 0, 10)
+})
+
+-- زر تصغير / إظهار الواجهة
+local MiniButton = CreateUIElement("TextButton", {
+	Name = "MiniButton",
+	Parent = ScreenGui,
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	Size = UDim2.new(0, 30, 0, 30),
+	Position = UDim2.new(0, 10, 0.5, -15),
+	Font = Enum.Font.GothamBold,
+	Text = "≡",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextScaled = true,
+	TextWrapped = true,
+	Draggable = true
+})
+
+CreateUIElement("UICorner", {
+	CornerRadius = UDim.new(0, 6),
+	Parent = MiniButton
+})
 
 MiniButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = true
-    MiniButton.Visible = false
-    isMinimized = false
+	MainFrame.Visible = not MainFrame.Visible
 end)
 
-local draggingMiniButton = false
-local offsetMiniButton = Vector2.new(0, 0)
+local function AddTitle(text)
+	Title.Text = text
+end
 
-MiniButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        draggingMiniButton = true
-        offsetMiniButton = Vector2.new(input.Position.X - MiniButton.AbsolutePosition.X, input.Position.Y - MiniButton.AbsolutePosition.Y)
-    end
-end)
-
-MiniButton.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        draggingMiniButton = false
-    end
-end)
-
-game:GetService("UserInputService").InputChanged:Connect(function(input)
-    if draggingMiniButton and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local mousePos = game:GetService("UserInputService"):GetMouseLocation()
-        MiniButton.Position = UDim2.new(0, mousePos.X - offsetMiniButton.X, 0, mousePos.Y - offsetMiniButton.Y)
-    end
-end)
+local function AddButton(text, callback, color)
+	local Button = CreateUIElement("TextButton", {
+		Parent = ScrollingFrame,
+		BackgroundColor3 = color or Color3.fromRGB(35, 35, 35),
+		Size = UDim2.new(0, 100, 0, 100),
+		Font = Enum.Font.Gotham,
+		Text = text,
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+		TextScaled = true,
+		TextWrapped = true
+	})
+	Button.MouseButton1Click:Connect(callback)
+	task.delay(0.05, function()
+		local totalHeight = UIGridLayout.AbsoluteContentSize.Y + 10
+		ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+	end)
+end
 
 return {
-    AddTitle = AddTitle,
-    AddButton = AddButton
+	AddTitle = AddTitle,
+	AddButton = AddButton
 }
