@@ -1,7 +1,7 @@
 local Configs_HUB = { 
   Cor_Hub = Color3.fromRGB(0, 0, 0), 
   Cor_Options = Color3.fromRGB(0, 0, 0), 
-  Cor_Stroke = Color3.fromRGB(128, 0, 128),  -- لون بنفسجي
+  Cor_Stroke = Color3.fromRGB(75, 0, 130),  -- لون بنفسجي
   Cor_Text = Color3.fromRGB(240, 240, 240), 
   Cor_DarkText = Color3.fromRGB(240, 240, 240), 
   Corner_Radius = UDim.new(0, 4), 
@@ -699,7 +699,7 @@ function MakeWindow(Configs)
     })
     
     local ImageLabel = Create("ImageLabel", TextButton, {
-      Image = "rbxassetid://92491735511394",
+      Image = "rbxassetid://99956220697276",
       Size = UDim2.new(0, 20, 0, 20),
       Position = UDim2.new(0, 5, 0, 2.5),
       BackgroundTransparency = 1,
