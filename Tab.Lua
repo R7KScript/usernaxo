@@ -669,7 +669,7 @@ function MakeWindow(Configs)
     if TabTitle then
         Create("TextLabel", Container, {
             BackgroundTransparency = 1,
-            Text = "#" .. string.gsub(TabName, " ", "-"),
+            Text = "" .. string.gsub(TabName, " ", "-"),
             TextSize = 25,
             Font = Configs_HUB.Text_Font,
             TextXAlignment = "Left",
