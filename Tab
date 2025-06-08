@@ -607,7 +607,6 @@ function MakeWindow(Configs)
   end)
   
   function MakeTab(Configs)
-  function MakeTab(Configs)
     local TabName = Configs.Name or "Tab"
     local TabTitle = Configs.TabTitle or false
     local TabImage = Configs.Image or nil
