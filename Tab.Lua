@@ -188,48 +188,163 @@ function MakeNotifi(Configs)
   local Frame2 = Create("Frame", Frame1, {
     Size = UDim2.new(0, Menu_Notifi.Size.X.Offset - 50, 0, 0),
     BackgroundColor3 = Configs_HUB.Cor_Hub,
-    BackgroundTransparency = 0.5, -- شفافية الإطار
-    Position = UDim2.new(0, Menu_Notifi.Size.X.Offset, 0, 0),
-    AutomaticSize = "Y"
-  }) Corner(Frame2)
-  
-  local TextLabel = Create("TextLabel", Frame2, {
-    Size = UDim2.new(1, 0, 0, 25),
-    Font = Configs_HUB.Text_Font,
-    BackgroundTransparency = 1,
-    Text = Title,
-    TextSize = 20,
-    Position = UDim2.new(0, 20, 0, 5),
-    TextXAlignment = "Left",
-    TextColor3 = Configs_HUB.Cor_Text
-  })
-  
-  local TextButton = Create("TextButton", Frame2, {
-    Text = "X",
-    Font = Configs_HUB.Text_Font,
-    TextSize = 20,
-    BackgroundTransparency = 1,
-    TextColor3 = Color3.fromRGB(200, 200, 200),
-    Position = UDim2.new(1, -5, 0, 5),
-    AnchorPoint = Vector2.new(1, 0),
-    Size = UDim2.new(0, 25, 0, 25)
-  })
-  
-  local TextLabel = Create("TextLabel", Frame2, {
-    Size = UDim2.new(1, -30, 0, 0),
-    Position = UDim2.new(0, 20, 0, TextButton.Size.Y.Offset + 10),
-    TextSize = 15,
-    TextColor3 = Configs_HUB.Cor_DarkText,
-    TextXAlignment = "Left",
-    TextYAlignment = "Top",
-    AutomaticSize = "Y",
-    Text = text,
-    Font = Configs_HUB.Text_Font,
-    BackgroundTransparency = 1,
-    AutomaticSize = Enum.AutomaticSize.Y,
-    TextWrapped = true
-  })
+ local Configs_HUB = {
+Cor_Hub = Color3.fromRGB(0, 0, 0),
+Cor_Options = Color3.fromRGB(0, 0, 0),
+Cor_Stroke = Color3.fromRGB(76, 175, 80),
+Cor_Text = Color3.fromRGB(240, 240, 240),
+Cor_DarkText = Color3.fromRGB(240, 240, 240),
+Corner_Radius = UDim.new(0,4),
+Text_Font = Enum.Font.FredokaOne
+}
+
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local function Create(instance, parent, props)
+local new = Instance.new(instance, parent)
+if props then
+table.foreach(props, function(prop, value)
+new[prop] = value
+end)
 end
+return new
+end
+
+local function SetProps(instance, props)
+if instance and props then
+table.foreach(props, function(prop, value)
+instance[prop] = value
+end)
+end
+return instance
+end
+
+local function Corner(parent, props)
+local new = Create("UICorner", parent)
+new.CornerRadius = Configs_HUB.Corner_Radius
+if props then
+SetProps(new, props)
+end
+return new
+end
+
+local function Stroke(parent, props)
+local new = Create("UIStroke", parent)
+new.Color = Configs_HUB.Cor_Stroke
+new.ApplyStrokeMode = "Border"
+if props then
+SetProps(new, props)
+end
+return new
+end
+
+local function CreateTween(instance, prop, value, time, tweenWait)
+local tween = TweenService:Create(instance,
+TweenInfo.new(time, Enum.EasingStyle.Linear),
+{[prop] = value})
+tween:Play()
+if tweenWait then
+tween.Completed:Wait()
+end
+end
+
+local function TextSetColor(instance)
+instance.MouseEnter:Connect(function()
+CreateTween(instance, "TextColor3", Color3.fromRGB(30, 140, 200), 0.4, true)
+end)
+instance.MouseLeave:Connect(function()
+CreateTween(instance, "TextColor3", Configs_HUB.Cor_Text, 0.4, false)
+end)
+end
+
+local ScreenGui = Create("ScreenGui", CoreGui, {
+Name = "REDz HUB library"
+})
+
+ScreenFind = CoreGui:FindFirstChild(ScreenGui.Name)
+if ScreenFind and ScreenFind ~= ScreenGui then
+ScreenFind:Destroy()
+end
+
+function DestroyScript()
+ScreenGui:Destroy()
+end
+
+local Menu_Notifi = Create("Frame", ScreenGui, {
+Size = UDim2.new(0, 300, 1, 0),
+Position = UDim2.new(1, 0, 0, 0),
+AnchorPoint = Vector2.new(1, 0),
+BackgroundTransparency = 1
+})
+
+local Padding = Create("UIPadding", Menu_Notifi, {
+PaddingLeft = UDim.new(0, 25),
+PaddingTop = UDim.new(0, 25),
+PaddingBottom = UDim.new(0, 50)
+})
+
+local ListLayout = Create("UIListLayout", Menu_Notifi, {
+Padding = UDim.new(0, 15),
+VerticalAlignment = "Bottom"
+})
+
+function MakeNotifi(Configs)
+local Title = Configs.Title or "REDz HUB"
+local text = Configs.Text or "Notificação"
+local timewait = Configs.Time or 5
+
+local Frame1 = Create("Frame", Menu_Notifi, {
+Size = UDim2.new(2, 0, 0, 0),
+BackgroundTransparency = 1,
+AutomaticSize = "Y",
+Name = "Title"
+})
+
+local Frame2 = Create("Frame", Frame1, {
+Size = UDim2.new(0, Menu_Notifi.Size.X.Offset - 50, 0, 0),
+BackgroundColor3 = Configs_HUB.Cor_Hub,
+Position = UDim2.new(0, Menu_Notifi.Size.X.Offset, 0, 0),
+AutomaticSize = "Y"
+})Corner(Frame2)
+
+local TextLabel = Create("TextLabel", Frame2, {
+Size = UDim2.new(1, 0, 0, 25),
+Font = Configs_HUB.Text_Font,
+BackgroundTransparency = 1,
+Text = Title,
+TextSize = 20,
+Position = UDim2.new(0, 20, 0, 5),
+TextXAlignment = "Left",
+TextColor3 = Configs_HUB.Cor_Text
+})
+
+local TextButton = Create("TextButton", Frame2, {
+Text = "X",
+Font = Configs_HUB.Text_Font,
+TextSize = 20,
+BackgroundTransparency = 1,
+TextColor3 = Color3.fromRGB(200, 200, 200),
+Position = UDim2.new(1, -5, 0, 5),
+AnchorPoint = Vector2.new(1, 0),
+Size = UDim2.new(0, 25, 0, 25)
+})
+
+local TextLabel = Create("TextLabel", Frame2, {
+Size = UDim2.new(1, -30, 0, 0),
+Position = UDim2.new(0, 20, 0, TextButton.Size.Y.Offset + 10),
+TextSize = 15,
+TextColor3 = Configs_HUB.Cor_DarkText,
+TextXAlignment = "Left",
+TextYAlignment = "Top",
+AutomaticSize = "Y",
+Text = text,
+Font = Configs_HUB.Text_Font,
+BackgroundTransparency = 1,
+AutomaticSize = Enum.AutomaticSize.Y,
+TextWrapped = true
+})
   
   local FrameSize = Create("Frame", Frame2, {
     Size = UDim2.new(1, 0, 0, 2),
