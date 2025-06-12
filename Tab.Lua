@@ -71,6 +71,79 @@ end
 
 local ScreenGui = Create("ScreenGui", CoreGui, {
   Name = "REDz HUB library"
+local Configs_HUB = {
+  Cor_Hub = Color3.fromRGB(0, 0, 0),
+  Cor_Options = Color3.fromRGB(0, 0, 0),
+  Cor_Stroke = Color3.fromRGB(76, 175, 80),
+  Cor_Text = Color3.fromRGB(240, 240, 240),
+  Cor_DarkText = Color3.fromRGB(240, 240, 240),
+  Corner_Radius = UDim.new(0,4),
+  Text_Font = Enum.Font.FredokaOne
+}
+
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local function Create(instance, parent, props)
+  local new = Instance.new(instance, parent)
+  if props then
+    table.foreach(props, function(prop, value)
+      new[prop] = value
+    end)
+  end
+  return new
+end
+
+local function SetProps(instance, props)
+  if instance and props then
+    table.foreach(props, function(prop, value)
+      instance[prop] = value
+    end)
+  end
+  return instance
+end
+
+local function Corner(parent, props)
+  local new = Create("UICorner", parent)
+  new.CornerRadius = Configs_HUB.Corner_Radius
+  if props then
+    SetProps(new, props)
+  end
+  return new
+end
+
+local function Stroke(parent, props)
+  local new = Create("UIStroke", parent)
+  new.Color = Configs_HUB.Cor_Stroke
+  new.ApplyStrokeMode = "Border"
+  if props then
+    SetProps(new, props)
+  end
+  return new
+end
+
+local function CreateTween(instance, prop, value, time, tweenWait)
+  local tween = TweenService:Create(instance,
+  TweenInfo.new(time, Enum.EasingStyle.Linear),
+  {[prop] = value})
+  tween:Play()
+  if tweenWait then
+    tween.Completed:Wait()
+  end
+end
+
+local function TextSetColor(instance)
+  instance.MouseEnter:Connect(function()
+    CreateTween(instance, "TextColor3", Color3.fromRGB(30, 140, 200), 0.4, true)
+  end)
+  instance.MouseLeave:Connect(function()
+    CreateTween(instance, "TextColor3", Configs_HUB.Cor_Text, 0.4, false)
+  end)
+end
+
+local ScreenGui = Create("ScreenGui", CoreGui, {
+  Name = "REDz HUB library"
 })
 
 ScreenFind = CoreGui:FindFirstChild(ScreenGui.Name)
@@ -115,9 +188,10 @@ function MakeNotifi(Configs)
   local Frame2 = Create("Frame", Frame1, {
     Size = UDim2.new(0, Menu_Notifi.Size.X.Offset - 50, 0, 0),
     BackgroundColor3 = Configs_HUB.Cor_Hub,
+    BackgroundTransparency = 0.5, -- شفافية الإطار
     Position = UDim2.new(0, Menu_Notifi.Size.X.Offset, 0, 0),
     AutomaticSize = "Y"
-  })Corner(Frame2)
+  }) Corner(Frame2)
   
   local TextLabel = Create("TextLabel", Frame2, {
     Size = UDim2.new(1, 0, 0, 25),
@@ -155,6 +229,7 @@ function MakeNotifi(Configs)
     AutomaticSize = Enum.AutomaticSize.Y,
     TextWrapped = true
   })
+end
   
   local FrameSize = Create("Frame", Frame2, {
     Size = UDim2.new(1, 0, 0, 2),
