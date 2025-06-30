@@ -4,7 +4,7 @@ local Configs_HUB = {
   Cor_Stroke = Color3.fromRGB(128, 0, 255),  -- لون بنفسجي
   Cor_Text = Color3.fromRGB(240, 240, 240), 
   Cor_DarkText = Color3.fromRGB(240, 240, 240), 
-  Corner_Radius = UDim.new(0, 20), 
+  Corner_Radius = UDim.new(1, 20), 
   Text_Font = Enum.Font.FredokaOne,
   BackgroundTransparency = 0.5
 }
