@@ -1297,174 +1297,132 @@ end
   end
   
 function AddDropdown(parent, Configs)
-    local DropdownName = Configs.Name or "Dropdown!!"
-    local Default = Configs.Default or "TextBox"
+    local DropdownName = Configs.Name or "اختر لون"
     local Options = Configs.Options or {"أحمر", "أخضر", "أزرق", "بنفسجي"}
-    local Default = Configs.Default or "أحمر"
+    local Default = Configs.Default or Options[1]
     local Callback = Configs.Callback or function() end
-    
-    local TextButton = Create("TextButton", parent, {
-        Size = UDim2.new(1, 0, 0, 25),
-        BackgroundColor3 = Configs_HUB.Cor_Options,
-        Name = "Frame",
-        Text = "",
-        AutoButtonColor = false
-    }) 
-    
-    local dropdownStroke = Stroke(TextButton)
-    Corner(TextButton)
-    
-    local TextLabel = Create("TextLabel", TextButton, {
-        TextSize = 12,
-        TextColor3 = Configs_HUB.Cor_Text,
-        Text = DropdownName,
-        Size = UDim2.new(1, 0, 0, 25),
-        Position = UDim2.new(0, 35, 0, 0),
-        BackgroundTransparency = 1,
-        TextXAlignment = "Left",
-        Font = Configs_HUB.Text_Font
-    })TextSetColor(TextLabel)
-    
-    local Line = Create("Frame", TextButton, {
-        Size = UDim2.new(1, 0, 0, 1),
-        Position = UDim2.new(0, 0, 0, 25),
-        BorderSizePixel = 0,
-        BackgroundColor3 = Configs_HUB.Cor_Stroke,
-        Visible = false
-    })
-    
-    local Arrow = Create("ImageLabel", TextButton, {
-        Image = "rbxassetid://6031090990",
-        Size = UDim2.new(0, 25, 0, 25),
-        Position = UDim2.new(0, 5, 0, 0),
-        BackgroundTransparency = 1
-    })
-    
-    local DefaultText = Create("TextLabel", TextButton, {
-        BackgroundColor3 = Configs_HUB.Cor_Hub,
-        BackgroundTransparency = 0.1,
-        Position = UDim2.new(1, -20, 0, 2.5),
-        AnchorPoint = Vector2.new(1, 0),
-        Size = UDim2.new(0, 100, 0, 20),
-        TextColor3 = Configs_HUB.Cor_DarkText,
-        TextScaled = true,
-        Font = Configs_HUB.Text_Font,
-        Text = "..."
-    })Corner(DefaultText)Stroke(DefaultText)
-    
-    local ScrollBar = Create("ScrollingFrame", TextButton, {
-        Size = UDim2.new(1, 0, 1, -25),
-        Position = UDim2.new(0, 0, 0, 25),
-        CanvasSize = UDim2.new(),
-        ScrollingDirection = "Y",
-        AutomaticCanvasSize = "Y",
-        BackgroundTransparency = 1,
-        ScrollBarThickness = 2
-    })Create("UIPadding", ScrollBar, {
-        PaddingLeft = UDim.new(0, 10),
-        PaddingRight = UDim.new(0, 10),
-        PaddingTop = UDim.new(0, 10),
-        PaddingBottom = UDim.new(0, 10)
-    })Create("UIListLayout", ScrollBar, {
-        Padding = UDim.new(0, 5)
-    })
-    
-    local ColorOptions = {
+
+    local ColorMap = {
         ["أحمر"] = Color3.fromRGB(255, 0, 0),
         ["أخضر"] = Color3.fromRGB(0, 255, 0),
         ["أزرق"] = Color3.fromRGB(0, 0, 255),
         ["بنفسجي"] = Color3.fromRGB(128, 0, 128)
     }
-    
-    local function AddOption(OptionName)
-        local TextButton = Create("TextButton", ScrollBar, {
-            Size = UDim2.new(1, 0, 0, 15),
-            Text = OptionName,
+
+    local MainFrame = Create("Frame", parent, {
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundColor3 = Configs_HUB.Cor_Options,
+        ClipsDescendants = true
+    })
+    Corner(MainFrame)
+    Stroke(MainFrame)
+
+    local ToggleButton = Create("TextButton", MainFrame, {
+        Size = UDim2.new(1, 0, 0, 30),
+        BackgroundTransparency = 1,
+        Text = "",
+        AutoButtonColor = false
+    })
+
+    local Title = Create("TextLabel", ToggleButton, {
+        Size = UDim2.new(1, -30, 1, 0),
+        Position = UDim2.new(0, 10, 0, 0),
+        Text = DropdownName,
+        TextColor3 = Configs_HUB.Cor_Text,
+        TextXAlignment = "Left",
+        Font = Configs_HUB.Text_Font,
+        TextSize = 14,
+        BackgroundTransparency = 1
+    })
+
+    local Current = Create("TextLabel", ToggleButton, {
+        Size = UDim2.new(0, 80, 0, 20),
+        Position = UDim2.new(1, -25, 0.5, -10),
+        AnchorPoint = Vector2.new(1, 0.5),
+        Text = Default,
+        TextColor3 = ColorMap[Default],
+        Font = Configs_HUB.Text_Font,
+        TextSize = 14,
+        BackgroundTransparency = 1
+    })
+
+    local Arrow = Create("ImageLabel", ToggleButton, {
+        Size = UDim2.new(0, 20, 0, 20),
+        Position = UDim2.new(1, -5, 0.5, -10),
+        AnchorPoint = Vector2.new(1, 0.5),
+        Image = "rbxassetid://6031090990",
+        BackgroundTransparency = 1
+    })
+
+    local OptionsFrame = Create("ScrollingFrame", MainFrame, {
+        Size = UDim2.new(1, -5, 0, 0),
+        Position = UDim2.new(0, 5, 0, 35),
+        BackgroundColor3 = Configs_HUB.Cor_Options,
+        ScrollBarThickness = 3,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        Visible = false
+    })
+    Corner(OptionsFrame)
+    Stroke(OptionsFrame)
+
+    local Layout = Create("UIListLayout", OptionsFrame, {
+        Padding = UDim.new(0, 5)
+    })
+
+    for _, option in pairs(Options) do
+        local OptionButton = Create("TextButton", OptionsFrame, {
+            Size = UDim2.new(1, -10, 0, 25),
+            Position = UDim2.new(0, 5, 0, 0),
+            Text = option,
+            TextColor3 = ColorMap[option],
             Font = Configs_HUB.Text_Font,
-            TextSize = 12,
-            TextColor3 = Color3.fromRGB(180, 180, 180),
-            BackgroundTransparency = 1
-        })Corner(TextButton)
-        
-        local SelectTable = {}
-        local OnOff = false
-        if OptionName == Default then
-            OnOff = true
-            TextButton.BackgroundTransparency = 0.8
-            TextButton.TextColor3 = Configs_HUB.Cor_Text
-            DefaultText.Text = OptionName
+            TextSize = 14,
+            BackgroundColor3 = Configs_HUB.Cor_Options,
+            AutoButtonColor = false
+        })
+        Corner(OptionButton)
+        Stroke(OptionButton)
+
+        OptionButton.MouseButton1Click:Connect(function()
+            Current.Text = option
+            Current.TextColor3 = ColorMap[option]
+            ToggleDropdown()
             
-            Configs_HUB.Cor_Stroke = ColorOptions[OptionName]
+            -- تحديث كل الـ UIStrokes في الواجهة
             for _, obj in pairs(ScreenGui:GetDescendants()) do
                 if obj:IsA("UIStroke") then
                     local gradient = obj:FindFirstChildOfType("UIGradient")
                     if gradient then
                         gradient.Color = ColorSequence.new{
-                            ColorSequenceKeypoint.new(0, ColorOptions[OptionName]),
+                            ColorSequenceKeypoint.new(0, ColorMap[option]),
                             ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
-                            ColorSequenceKeypoint.new(1, ColorOptions[OptionName])
-                        }
-                    end
-                end
-            end
-            Callback(OptionName)
-        end
-        
-        TextButton.MouseButton1Click:Connect(function()
-            for _,v in pairs(ScrollBar:GetChildren()) do
-                if v:IsA("TextButton") then
-                    v.BackgroundTransparency = 1
-                    v.TextColor3 = Color3.fromRGB(180, 180, 180)
-                end
-            end
-            DefaultText.Text = OptionName
-            
-            Configs_HUB.Cor_Stroke = ColorOptions[OptionName]
-            for _, obj in pairs(ScreenGui:GetDescendants()) do
-                if obj:IsA("UIStroke") then
-                    local gradient = obj:FindFirstChildOfType("UIGradient")
-                    if gradient then
-                        gradient.Color = ColorSequence.new{
-                            ColorSequenceKeypoint.new(0, ColorOptions[OptionName]),
-                            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
-                            ColorSequenceKeypoint.new(1, ColorOptions[OptionName])
+                            ColorSequenceKeypoint.new(1, ColorMap[option])
                         }
                     end
                 end
             end
             
-            Callback(OptionName)
-            TextButton.BackgroundTransparency = 0.8
-            TextButton.TextColor3 = Configs_HUB.Cor_Text
+            if Callback then Callback(option) end
         end)
     end
-    
-    for _,v in pairs(Options) do
-        AddOption(v)
-    end
-    
-    local DropOnOff = false
-    TextButton.MouseButton1Click:Connect(function()
-        local OptionSize, OptionsNumber = 25, 0
-        for _,v in pairs(ScrollBar:GetChildren()) do
-            if v:IsA("TextButton") and OptionsNumber < 5 then
-                OptionsNumber = OptionsNumber + 1
-                OptionSize = OptionSize + tonumber(v.Size.Y.Offset + 10)
-            end
-        end
-        if not DropOnOff then
-            CreateTween(TextButton, "Size", UDim2.new(1, 0, 0, OptionSize), 0.3, false)
-            CreateTween(Arrow, "Rotation", 180, 0.3, false)
-            DropOnOff = true
-            Line.Visible = true
+
+    local function ToggleDropdown()
+        if OptionsFrame.Visible then
+            OptionsFrame.Visible = false
+            CreateTween(MainFrame, "Size", UDim2.new(1, 0, 0, 30), 0.2)
+            CreateTween(Arrow, "Rotation", 0, 0.2)
         else
-            CreateTween(TextButton, "Size", UDim2.new(1, 0, 0, 25), 0.3, false)
-            CreateTween(Arrow, "Rotation", 0, 0.3, true)
-            DropOnOff = false
-            Line.Visible = false
+            OptionsFrame.Visible = true
+            local height = math.min(#Options * 30 + 10, 150)
+            CreateTween(MainFrame, "Size", UDim2.new(1, 0, 0, 30 + height), 0.2)
+            CreateTween(Arrow, "Rotation", 180, 0.2)
+            OptionsFrame.CanvasSize = UDim2.new(0, 0, 0, #Options * 30)
         end
-    end)
-    return {ScrollBar, Default, Callback, DefaultText}
+    end
+
+    ToggleButton.MouseButton1Click:Connect(ToggleDropdown)
+
+    return MainFrame
 end
   
   function UpdateDropdown(Dropdown, NewOptions)
