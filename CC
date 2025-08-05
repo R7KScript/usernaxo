@@ -581,21 +581,21 @@ Stroke(Menu)
   
   local ScrollBar = Create("ScrollingFrame", Menu, {
     Size = UDim2.new(0, 140, 1, -tonumber(TopBar.Size.Y.Offset + 2)),
-    Position = UDim2.new(0, 0, 1, 0),
-    AnchorPoint = Vector2.new(0, 1),
+    Position = UDim2.new(1, 0, 1, 0),
+    AnchorPoint = Vector2.new(1, 1),
     CanvasSize = UDim2.new(),
     ScrollingDirection = "Y",
     AutomaticCanvasSize = "Y",
     BackgroundTransparency = 1,
     ScrollBarThickness = 2
-  })Create("UIPadding", ScrollBar, {
-    PaddingLeft = UDim.new(0, 10),
-    PaddingRight = UDim.new(0, 10),
-    PaddingTop = UDim.new(0, 10),
-    PaddingBottom = UDim.new(0, 10)
-  })Create("UIListLayout", ScrollBar, {
-    Padding = UDim.new(0, 5)
-  })
+})
+
+local Containers = Create("Frame", Menu, {
+    Size = UDim2.new(1, -tonumber(ScrollBar.Size.X.Offset + 2), 1, -tonumber(TopBar.Size.Y.Offset + 2)),
+    AnchorPoint = Vector2.new(0, 1),
+    Position = UDim2.new(0, 0, 1, 0),
+    BackgroundTransparency = 1
+})
   
   local Containers = Create("Frame", Menu, {
     Size = UDim2.new(1, -tonumber(ScrollBar.Size.X.Offset + 2), 1, -tonumber(TopBar.Size.Y.Offset + 2)),
@@ -610,9 +610,10 @@ Stroke(Menu)
     line.BorderSizePixel = 0
   end
   
-  Add_Line({Size = UDim2.new(1, 0, 0, 1),Position = UDim2.new(0, 0, 0, TopBar.Size.Y.Offset)})
-  Add_Line({Size = UDim2.new(0, 1, 1, -tonumber(TopBar.Size.Y.Offset + 1)),
-  Position = UDim2.new(0, ScrollBar.Size.X.Offset, 0, TopBar.Size.Y.Offset)})
+  Add_Line({
+    Size = UDim2.new(0, 1, 1, -tonumber(TopBar.Size.Y.Offset + 1)),
+    Position = UDim2.new(1, -ScrollBar.Size.X.Offset, 0, TopBar.Size.Y.Offset)
+})
   
   local firstVisible = true
   local FirstTab = true
@@ -660,15 +661,15 @@ Stroke(Menu)
     local textOffset = TabImage and 30 or 5
 
     local TextLabel = Create("TextLabel", Frame, {
-        Size = UDim2.new(1, -textOffset, 1, 0),
-        Position = UDim2.new(0, textOffset, 0, 0),
-        BackgroundTransparency = 1,
-        Font = Configs_HUB.Text_Font,
-        TextColor3 = textcolor,
-        TextSize = textsize,
-        Text = TabName,
-        TextXAlignment = Enum.TextXAlignment.Left
-    })
+    Size = UDim2.new(1, -textOffset, 1, 0),
+    Position = UDim2.new(0, textOffset, 0, 0),
+    BackgroundTransparency = 1,
+    Font = Configs_HUB.Text_Font,
+    TextColor3 = textcolor,
+    TextSize = textsize,
+    Text = TabName,
+    TextXAlignment = Enum.TextXAlignment.Right
+})
     
     local Container = Create("ScrollingFrame", Containers, {
         Size = UDim2.new(1, 0, 1, 0),
@@ -733,101 +734,44 @@ Stroke(Menu)
 end
 
   function AddButton(parent, Configs)
-    local ButtonName = Configs.Name or "تغيير التدرج"
+    local ButtonName = Configs.Name or "Button!!"
     local Callback = Configs.Callback or function() end
     
-    local gradients = {
-        {
-            name = "أحمر",
-            colors = {
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
-            }
-        },
-        {
-            name = "أخضر",
-            colors = {
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 0)),
-                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 0))
-            }
-        },
-        {
-            name = "أزرق",
-            colors = {
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 255)),
-                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 255))
-            }
-        },
-        {
-            name = "بنفسجي",
-            colors = {
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(128, 0, 128)),
-                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 0)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(128, 0, 128))
-            }
-        }
-    }
-    
-    local currentIndex = 1
-
     local TextButton = Create("TextButton", parent, {
-        Size = UDim2.new(1, 0, 0, 30),
-        BackgroundColor3 = Configs_HUB.Cor_Options,
-        Text = "",
-        AutoButtonColor = false
-    })
-    Corner(TextButton)
-    Stroke(TextButton)
-    
-    local PreviewFrame = Create("Frame", TextButton, {
-        Size = UDim2.new(0, 60, 0, 20),
-        Position = UDim2.new(1, -65, 0.5, -10),
-        AnchorPoint = Vector2.new(1, 0.5),
-        BackgroundTransparency = 1
-    })
-    local PreviewGradient = Instance.new("UIGradient", PreviewFrame)
-    PreviewGradient.Color = ColorSequence.new(gradients[currentIndex].colors)
-    Corner(PreviewFrame)
-    Stroke(PreviewFrame)
+      Size = UDim2.new(1, 0, 0, 25),
+      BackgroundColor3 = Configs_HUB.Cor_Options,
+      Name = "Frame",
+      Text = "",
+      AutoButtonColor = false
+    })Corner(TextButton)Stroke(TextButton)
     
     local TextLabel = Create("TextLabel", TextButton, {
-        TextSize = 12,
-        TextColor3 = Configs_HUB.Cor_Text,
-        Text = ButtonName,
-        Size = UDim2.new(1, -70, 1, 0),
-        Position = UDim2.new(0, 10, 0, 0),
-        BackgroundTransparency = 1,
-        TextXAlignment = "Left",
-        Font = Configs_HUB.Text_Font
+      TextSize = 12,
+      TextColor3 = Configs_HUB.Cor_Text,
+      Text = ButtonName,
+      Size = UDim2.new(1, 0, 1, 0),
+      Position = UDim2.new(0, 35, 0, 0),
+      BackgroundTransparency = 1,
+      TextXAlignment = "Left",
+      Font = Configs_HUB.Text_Font
+    })
+    
+    local ImageLabel = Create("ImageLabel", TextButton, {
+      Image = "rbxassetid://99956220697276",
+      Size = UDim2.new(0, 20, 0, 20),
+      Position = UDim2.new(0, 5, 0, 2.5),
+      BackgroundTransparency = 1,
+      ImageColor3 = Configs_HUB.Cor_Stroke
     })
     
     TextButton.MouseButton1Click:Connect(function()
-        currentIndex = currentIndex % #gradients + 1
-        local gradient = gradients[currentIndex]
-        
-        PreviewGradient.Color = ColorSequence.new(gradient.colors)
-        
-        for _, obj in pairs(ScreenGui:GetDescendants()) do
-            if obj:IsA("UIStroke") then
-                local grad = obj:FindFirstChildOfType("UIGradient")
-                if grad then
-                    grad.Color = ColorSequence.new(gradient.colors)
-                else
-                    local newGrad = Instance.new("UIGradient")
-                    newGrad.Color = ColorSequence.new(gradient.colors)
-                    newGrad.Parent = obj
-                end
-            end
-        end
-        
-        if Callback then Callback(gradient.name) end
+      Callback("Click!!")
+      CreateTween(ImageLabel, "ImageColor3", Color3.fromRGB(30, 140, 200), 0.2, true)
+      CreateTween(ImageLabel, "ImageColor3", Configs_HUB.Cor_Stroke, 0.2, false)
     end)
     
     TextSetColor(TextLabel)
-end
+  end
   
   function AddToggle(parent, Configs)
     local ToggleName = Configs.Name or "Toggle!!"
