@@ -384,12 +384,12 @@ Stroke(Menu)
 
 local Credit = Create("TextLabel", TopBar, {
     Size = UDim2.new(0, 100, 1, 0),
-    Position = UDim2.new(0, 80, 0, 0),
+    Position = UDim2.new(0, 60, 0, 0),
     TextColor3 = Color3.fromRGB(200, 200, 200),
     Font = Configs_HUB.Text_Font,
     TextXAlignment = "Left",
     Text = credits,
-    TextSize = 14,
+    TextSize = 12,
     BackgroundTransparency = 1
 })
 Credit.TextTransparency = 0.3
